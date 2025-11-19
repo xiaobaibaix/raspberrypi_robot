@@ -1,0 +1,7 @@
+{
+    "cmake.sourceDirectory": "/home/huazhi/ros2_ws/src/fake_hw",
+    "python.analysis.extraPaths": [
+    "${workspaceFolder}/install/robot_control_msgs/lib/python3.11/site-packages",
+    "${workspaceFolder}/install/robot_control_driver_sdk/lib/python3.11/site-packages"
+  ]
+}
