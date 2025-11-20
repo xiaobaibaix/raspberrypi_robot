@@ -1,0 +1,4 @@
+robot_msgs/GetBusServoCmd[] cmd
+---
+bool success
+robot_msgs/BusServoState[] state
