@@ -79,6 +79,29 @@
        机器人模型主体
   ############################### -->
 
+  <link name="base_footprint">
+    <visual>
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+      <material name="green">
+        <color rgba="0 1.0 0 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <sphere radius="0.01" />
+      </geometry>
+    </collision>
+    <xacro:default_inertial mass="0.1" />
+  </link>
+
+  <joint name="base_to_footprint" type="fixed">
+    <parent link="base_footprint" />
+    <child link="base_link" />
+    <origin xyz="0 0 ${base_height}" rpy="0 0 0" />
+  </joint>
+
   <!-- 机器人底盘主体 -->
   <link name="base_link">
     <visual>
@@ -97,10 +120,37 @@
     <xacro:default_inertial mass="${base_mass}" />
   </link>
 
+
+
   <!-- 使用宏创建四个车轮 -->
   <xacro:create_wheel name="left_front" xyz="${wheel_x} ${wheel_y} ${wheel_z}" />
   <xacro:create_wheel name="right_front" xyz="${wheel_x} -${wheel_y} ${wheel_z}" />
   <xacro:create_wheel name="left_rear" xyz="-${wheel_x} ${wheel_y} ${wheel_z}" />
   <xacro:create_wheel name="right_rear" xyz="-${wheel_x} -${wheel_y} ${wheel_z}" />
+
+  <link name="laser_frame">
+    <visual>
+      <geometry>
+        <cylinder radius="0.05" length="0.05" />
+      </geometry>
+      <origin xyz="0 0 0.025" rpy="0 0 0" />
+      <material name="red">
+        <color rgba="0.5 0 0 1.0" />
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="0.05" length="0.05" />
+      </geometry>
+      <origin xyz="0 0 0.025" rpy="0 0 0" />
+    </collision>
+    <xacro:default_inertial mass="0.1" />
+  </link>
+
+  <joint name="laser_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="laser_frame" />
+    <origin xyz="0 0 0.05" rpy="0 0 0" />
+  </joint>
   
 </robot>

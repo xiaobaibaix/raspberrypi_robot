@@ -20,20 +20,20 @@ def generate_launch_description():
             parameters=[{'robot_description': robot_desc}]
         ),
         
-        # 启动RViz2
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            output='screen',
-            arguments=['-d', packagepath + '/config/rviz.rviz']
-        ),
+        # # 启动RViz2
+        # Node(
+        #     package='rviz2',
+        #     executable='rviz2',
+        #     name='rviz2',
+        #     output='screen',
+        #     arguments=['-d', packagepath + '/config/rviz.rviz']
+        # ),
         
         # 启动joint_state_publisher（可选，用于手动调整关节）
         Node(
-            package='joint_state_publisher_gui',
-            executable='joint_state_publisher_gui',
-            name='joint_state_publisher_gui',
+            package='joint_state_publisher',
+            executable='joint_state_publisher',
+            name='joint_state_publisher',
             output='screen'
         )
     ])
