@@ -15,8 +15,8 @@ from std_srvs.srv import Trigger
 from sensor_msgs.msg import Imu, Joy
 from std_msgs.msg import UInt16, Bool
 from robot_control_driver_sdk.ros_robot_controller_sdk import Board, PacketReportKeyEvents
-from robot_control_msgs.srv import GetBusServoState, GetPWMServoState, GetButtonState
-from robot_control_msgs.msg import (
+from robot_msgs.srv import GetBusServoState, GetPWMServoState, GetButtonState
+from robot_msgs.msg import (
     ButtonState, BuzzerState, MotorsState, BusServoState, LedState,
     SetBusServoState, ServosPosition, SetPWMServoState, Sbus, OLEDState,
     RGBStates, PWMServoState, ButtonState
@@ -58,7 +58,7 @@ class RosRobotController(Node):
 
 
         # 加载并设置舵机偏移量从 YAML 文件
-        self.load_servo_offsets()
+        #self.load_servo_offsets()
 
         # 初始化电机速度
         self.board.set_motor_speed([[1, 0], [2, 0], [3, 0], [4, 0]])
@@ -67,7 +67,6 @@ class RosRobotController(Node):
         threading.Thread(target=self.pub_callback, daemon=True).start()
         self.create_service(Trigger, '~/init_finish', self.get_node_state)
         self.get_logger().info('\033[1;32m%s\033[0m' % 'start')
-        print('\033[1;32m%s\033[0m' % 'start')
         
     def load_servo_offsets(self):
         """
@@ -138,6 +137,7 @@ class RosRobotController(Node):
         for i in msg.data:
             data.extend([[i.id, i.rps]])
         self.board.set_motor_speed(data)
+        self.get_logger().info(f"set_motor_state: {data}")
 
     def set_oled_state(self, msg):
         self.board.set_oled_text(int(msg.index), msg.text)

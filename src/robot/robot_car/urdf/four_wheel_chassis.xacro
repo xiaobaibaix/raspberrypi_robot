@@ -79,22 +79,7 @@
        机器人模型主体
   ############################### -->
 
-  <link name="base_footprint">
-    <visual>
-      <geometry>
-        <sphere radius="0.01" />
-      </geometry>
-      <material name="green">
-        <color rgba="0 1.0 0 1.0" />
-      </material>
-    </visual>
-    <collision>
-      <geometry>
-        <sphere radius="0.01" />
-      </geometry>
-    </collision>
-    <xacro:default_inertial mass="0.1" />
-  </link>
+  <link name="base_footprint"/>
 
   <joint name="base_to_footprint" type="fixed">
     <parent link="base_footprint" />

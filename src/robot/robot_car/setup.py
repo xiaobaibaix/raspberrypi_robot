@@ -29,7 +29,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'test_car_publisher=robot_car_control.test_car_publisher:main',
+            'test_car_publisher=robot_car.test_car_publisher:main',
+            'odom_publisher=robot_car.odom_publisher_node:main',
         ],
     },
 )

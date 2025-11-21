@@ -28,8 +28,8 @@ class PacketFunction(enum.IntEnum):
     PACKET_FUNC_SYS = 0
     PACKET_FUNC_LED = 1         # LED控制(LED control)
     PACKET_FUNC_BUZZER = 2      # 蜂鸣器控制(buzzer control)
-    PACKET_FUNC_MOTOR = 3       # 电机控制(motor control)
-    PACKET_FUNC_PWM_SERVO = 4   # PWM舵机控制, 板子上从里到外依次为1-4(PWM servo control. The servos on the board are numbered 1 to 4 from inside to outside)
+    PACKET_FUNC_MOTOR = 4       # 电机控制(motor control)
+    PACKET_FUNC_PWM_SERVO = 13   # PWM舵机控制, 板子上从里到外依次为1-4(PWM servo control. The servos on the board are numbered 1 to 4 from inside to outside)
     PACKET_FUNC_BUS_SERVO = 5   # 总线舵机控制(bus servo control)
     PACKET_FUNC_KEY = 6         # 按键获取(obtain button)
     PACKET_FUNC_IMU = 7         # IMU获取(obtain IMU)
@@ -100,7 +100,7 @@ class Board:
             'GAMEPAD_BUTTON_MASK_R1':        0x8000
     }
 
-    def __init__(self, device="/dev/rrc", baudrate=1000000, timeout=10):
+    def __init__(self, device="/dev/ttyAMA0", baudrate=115200, timeout=10):
         self.enable_recv = False
         self.frame = []
         self.recv_count = 0
@@ -324,9 +324,11 @@ class Board:
         buf = [0xAA, 0x55, int(func)]
         buf.append(len(data))
         buf.extend(data)
-        buf.append(checksum_crc8(bytes(buf[2:])))
+        #buf.append(checksum_crc8(bytes(buf[2:])))
         buf = bytes(buf)
+        print(' '.join(f'{b:02X}' for b in buf))
         self.port.write(buf)
+
 
     def set_led(self, on_time, off_time, repeat=1, led_id=1):
         on_time = int(on_time*1000)
@@ -339,9 +341,9 @@ class Board:
         self.buf_write(PacketFunction.PACKET_FUNC_BUZZER, struct.pack("<HHHH", freq, on_time, off_time, repeat))
 
     def set_motor_speed(self, speeds):
-        data = [0x01, len(speeds)]
-        for i in speeds:
-            data.extend(struct.pack("<Bf", int(i[0] - 1), float(i[1])))
+        data = [0x01,0x0a,0x00,len(speeds)]
+        for idx, vel in speeds:
+            data.extend(struct.pack('<Bh', int(idx), int(vel)))   # Bh = uint8 + int16
         self.buf_write(PacketFunction.PACKET_FUNC_MOTOR, data)
     
     '''
@@ -529,14 +531,14 @@ class Board:
                                 self.state = PacketControllerState.PACKET_CONTROLLER_STATE_CHECKSUM
                             continue
                         elif self.state == PacketControllerState.PACKET_CONTROLLER_STATE_CHECKSUM:
-                            crc8 = checksum_crc8(bytes(self.frame))
-                            if crc8 == dat:
-                                func = PacketFunction(self.frame[0])
-                                data = bytes(self.frame[2:])
-                                if func in self.parsers:
-                                    self.parsers[func](data)
-                            else:
-                                logger.info("校验失败")
+                            # crc8 = checksum_crc8(bytes(self.frame))
+                            # if crc8 == dat:
+                            func = PacketFunction(self.frame[0])
+                            data = bytes(self.frame[2:])
+                            if func in self.parsers:
+                                self.parsers[func](data)
+                            # else:
+                            #     logger.info("校验失败")
                             self.state = PacketControllerState.PACKET_CONTROLLER_STATE_STARTBYTE1
                             continue
             else:
@@ -591,6 +593,11 @@ def pwm_servo_test(board):
     print('offset:', board.pwm_servo_read_offset(servo_id))
     print('position:', board.pwm_servo_read_position(servo_id))
 
+def motor_test(board):
+    board.set_motor_speed([[1, 100], [2, 100], [3, 100], [4, 100]])
+    time.sleep(1)
+    board.set_motor_speed([[1, 0], [2, 0], [3, 0], [4, 0]])
+
 if __name__ == "__main__":
     board = Board()
     board.enable_reception()
@@ -620,12 +627,15 @@ if __name__ == "__main__":
     # last_time = time.time()
     while True:
         try:
+            motor_test(board)
+            time.sleep(2)
+            print("new set...\n")
             # board.set_buzzer(3000, 0.05, 0.01, 1)
-            res = board.get_imu()
-            if res is not None:
-                for item in res:
-                   print("  {: .8f} ".format(item), end='')
-                print()
+            # res = board.get_imu()
+            # if res is not None:
+            #     for item in res:
+            #        print("  {: .8f} ".format(item), end='')
+            #     print()
             # res = board.get_button()
             # if res is not None:
                 # print(res)

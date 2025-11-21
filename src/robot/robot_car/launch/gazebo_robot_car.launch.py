@@ -15,6 +15,9 @@ from launch_ros.actions import Node as LaunchNode
 import subprocess
 import os
 
+from launch_ros.parameter_descriptions import ParameterFile
+
+
 def generate_launch_description():
 
     ld = LaunchDescription()
@@ -70,34 +73,27 @@ def generate_launch_description():
     )
 
     # RViz2可视化节点
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz',
-        arguments=['-d', os.path.join(packagepath, 'config', 'rviz.rviz')],
-        parameters=[
-            {'use_sim_time': use_gazebo},
-        ]
-    )
-
-    # 小车控制节点
-    car_control_node = Node(
-        package='robot_car',
-        executable='test_car_publisher',
-        output='screen'
-    )
+    # rviz_node = Node(
+    #     package='rviz2',
+    #     executable='rviz2',
+    #     name='rviz',
+    #     arguments=['-d', os.path.join(packagepath, 'config', 'rviz.rviz')],
+    #     parameters=[
+    #         {'use_sim_time': use_gazebo},
+    #     ]
+    # )
 
     # add_action逐个添加节点
-    ld.add_action(rviz_node)
+    # ld.add_action(rviz_node)
     ld.add_action(robot_desc_node)
 
     controller_manager_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[
-            os.path.join(packagepath, 'config', 'controllers.yaml'),
+            {'robot_description': ParameterValue(robot_description, value_type=str)},
+            ParameterFile(os.path.join(packagepath, 'config', 'controllers.yaml'), allow_substs=True)
         ],
-        name='controller_manager',
         output="both",
         condition=UnlessCondition(use_gazebo)
     )
@@ -114,19 +110,32 @@ def generate_launch_description():
     gazebo_diffspawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['diff_drive_controller', '--controller-manager', '/controller_manager'],
+        arguments=['mecanum_drive_controller', '--controller-manager', '/controller_manager'],
         output='screen',
     )
-
-    ld.add_action(gazebo_jspawner)
-    ld.add_action(gazebo_diffspawner)
-
-    # TimerAction也需要单独添加（小车测试节点）
-    ld.add_action(
-        TimerAction(
-            period=10.0,
-            actions=[car_control_node],
+    # 修复后的代码
+    ld.add_action(RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=controller_manager_node,
+            on_start=[
+                TimerAction(
+                    period=3.0,
+                    actions=[gazebo_jspawner]
+                )
+            ]
         )
-    )
+    ))
+
+    ld.add_action(RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=gazebo_jspawner,
+            on_exit=[
+                TimerAction(
+                    period=2.0,
+                    actions=[gazebo_diffspawner]
+                )
+            ]
+        )
+    ))
 
     return ld

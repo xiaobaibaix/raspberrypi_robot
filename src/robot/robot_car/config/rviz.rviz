@@ -66,7 +66,17 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        base_footprint:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        laser_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -106,7 +116,11 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
+        base_footprint:
+          Value: true
         base_link:
+          Value: true
+        laser_frame:
           Value: true
         left_front_wheel:
           Value: true
@@ -122,15 +136,18 @@ Visualization Manager:
       Show Axes: true
       Show Names: false
       Tree:
-        base_link:
-          left_front_wheel:
-            {}
-          left_rear_wheel:
-            {}
-          right_front_wheel:
-            {}
-          right_rear_wheel:
-            {}
+        base_footprint:
+          base_link:
+            laser_frame:
+              {}
+            left_front_wheel:
+              {}
+            left_rear_wheel:
+              {}
+            right_front_wheel:
+              {}
+            right_rear_wheel:
+              {}
       Update Interval: 0
       Value: true
   Enabled: true
@@ -179,7 +196,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 1.8042124509811401
+      Distance: 2.0991854667663574
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -194,10 +211,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5781834125518799
+      Pitch: 0.533183753490448
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.7244040966033936
+      Yaw: 4.07758903503418
     Saved: ~
 Window Geometry:
   Displays:
@@ -215,5 +232,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1387
-  X: 151
-  Y: 32
+  X: 223
+  Y: 103

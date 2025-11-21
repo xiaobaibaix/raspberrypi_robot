@@ -3,5 +3,8 @@
     "python.analysis.extraPaths": [
     "${workspaceFolder}/install/robot_msgs/lib/python3.11/site-packages",
   ],
-  "cmake.ignoreCMakeListsMissing": true
+  "cmake.ignoreCMakeListsMissing": true,
+  "files.associations": {
+    "chrono": "cpp"
+  }
 }

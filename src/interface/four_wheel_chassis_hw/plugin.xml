@@ -1,4 +1,4 @@
-<library path="libfour_wheel_chassis_hw">  <!-- 库路径：对应 CMake install 到 lib/fake_hw/libfake_hw.so -->
+<library path="four_wheel_chassis_hw">  <!-- 库路径：对应 CMake install 到 lib/fake_hw/libfake_hw.so -->
   <class name="four_wheel_chassis_hw/FourWheelChassisHW"
          type="four_wheel_chassis_hw::FourWheelChassisHW"
          base_class_type="hardware_interface::SystemInterface">
