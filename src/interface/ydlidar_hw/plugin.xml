@@ -1,7 +1,0 @@
-<library path="libydlidar_hw">  <!-- 库路径：对应 CMake install 到 lib/fake_hw/libfake_hw.so -->
-  <class name="ydlidar_hw/YdLidarHW"
-         type="ydlidar_hw::YdLidarHW"
-         base_class_type="hardware_interface::SystemInterface">
-    <description>简单的假硬件 SystemInterface,用于测试。</description>
-  </class>
-</library>
