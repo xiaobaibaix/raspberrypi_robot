@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot name="robot_car_mecanum" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- XML声明定义了文档使用的XML版本和UTF-8字符编码[1,3](@ref) -->
+  
+  <!-- 参数使用仿真 -->
+  <xacro:arg name='use_gazebo' default='false'/>
+  
+  <!-- 包含模型 -->
+  <xacro:include filename="$(find robot_desc)/urdf/four_wheel_chassis.xacro"/>
+
+  <xacro:if value='$(arg use_gazebo)'>
+    <!-- Gazebo仿真特定配置 -->
+    <gazebo>
+      <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+        <parameters>$(find robot_car_mecanum)/config/controllers.yaml</parameters>
+      </plugin>
+    </gazebo>
+  </xacro:if>
+
+  <!-- ros2_control配置 -->
+  <ros2_control name="CarSystem" type="system">
+    <hardware>
+      <xacro:if value="$(arg use_gazebo)">
+        <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+      </xacro:if>
+      <xacro:unless value="$(arg use_gazebo)">
+        <plugin>four_wheel_chassis_hw/FourWheelChassisHW</plugin>
+         <!-- <plugin>mock_components/GenericSystem</plugin> -->
+      </xacro:unless>
+    </hardware>
+    
+    <!-- 关节定义保持不变 -->
+    <joint name="left_front_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    
+    <joint name="right_front_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    
+    <joint name="left_rear_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    
+    <joint name="right_rear_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+  
+</robot>

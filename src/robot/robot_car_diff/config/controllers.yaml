@@ -1,0 +1,52 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 20
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+    diff_drive_controller:
+      type: diff_drive_controller/DiffDriveController
+
+diff_drive_controller:
+  ros__parameters:
+    # 驱动轮配置
+    left_wheel_names: ['left_front_wheel_joint','left_rear_wheel_joint']
+    right_wheel_names: ['right_front_wheel_joint','right_rear_wheel_joint']
+    
+    # 运动学参数（浮点数）
+    wheel_separation: 0.30
+    wheel_radius: 0.05
+    wheel_separation_multiplier: 1.0
+    left_wheel_radius_multiplier: 1.0
+    right_wheel_radius_multiplier: 1.0
+    
+    # 控制参数（浮点数）
+    publish_rate: 20.0
+    cmd_vel_timeout: 5.0
+    enable_odom_tf: true
+    open_loop: false
+    
+    # 帧ID配置
+    base_frame_id: "base_footprint"
+    odom_frame_id: "odom"
+    
+    # 速度限制（浮点数）
+    linear:
+      x:
+        has_velocity_limits: true
+        max_velocity: 1.0
+        min_velocity: -1.0
+        has_acceleration_limits: true
+        max_acceleration: 3.0
+        min_acceleration: -3.0
+    angular:
+      z:
+        has_velocity_limits: true
+        max_velocity: 3.14
+        min_velocity: -3.14
+        has_acceleration_limits: true
+        max_acceleration: 6.28
+        min_acceleration: -6.28
+    
+    # 协方差（浮点数数组）
+    pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.03]
+    twist_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.03]

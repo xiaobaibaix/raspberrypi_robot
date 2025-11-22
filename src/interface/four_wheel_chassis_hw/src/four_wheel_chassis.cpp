@@ -112,8 +112,16 @@ namespace four_wheel_chassis_hw
                 robot_msgs::msg::MotorState().set__id(4).set__rps(hw_commands_[3]*10),
             })
         ));
-        hw_velocities_ = hw_commands_;
+        hw_velocities_= hw_commands_;
+
         hw_positions_  = hw_positions_;
+        
+        // RCLCPP_INFO(node_logging_->get_logger(), "%s %s %s %s",
+        //     std::to_string(hw_commands_[0]).c_str(),
+        //     std::to_string(hw_commands_[1]).c_str(),
+        //     std::to_string(hw_commands_[2]).c_str(),
+        //     std::to_string(hw_commands_[3]).c_str()
+        // );
 
         return hardware_interface::return_type::OK;
     }
