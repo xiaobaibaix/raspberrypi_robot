@@ -61,6 +61,7 @@ class RosRobotController(Node):
         #self.load_servo_offsets()
 
         # 初始化电机速度
+        self.get_logger().info('Initializing motor speeds to zero.')
         self.board.set_motor_speed([[1, 0], [2, 0], [3, 0], [4, 0]])
 
         self.clock = self.get_clock()
@@ -143,7 +144,6 @@ class RosRobotController(Node):
         self.board.set_oled_text(int(msg.index), msg.text)
 
     def set_pwm_servo_state(self, msg):
-        #self.get_logger().info("--------->set pwm!")
         data = []
         for i in msg.state:
             if i.id and i.position:
@@ -152,9 +152,8 @@ class RosRobotController(Node):
                 self.board.pwm_servo_set_offset(i.id[0], i.offset[0])
 
         if data != []:
-            #self.get_logger().info(F"set pwm:{data}")
             self.board.pwm_servo_set_position(msg.duration, data)
-        #self.get_logger().info("--------->set pwm! end")
+
     def get_button_state(self,request, response):
         ress=response.state
         while True:
@@ -175,14 +174,12 @@ class RosRobotController(Node):
         return response
 
     def get_pwm_servo_state(self, request, response):
-        # self.get_logger().info("--------->get pwm!")
         states = response.state
         for i in request.cmd:
             data = PWMServoState()
             data.id.append(i.id)
             if i.get_position:
                 pwm = self.board.pwm_servo_read_position(i.id)
-                # self.get_logger().info(f"get pwm position: {pwm}")
                 if pwm is not None:
                     data.position.append(pwm)
             if i.get_offset != False:
@@ -192,7 +189,6 @@ class RosRobotController(Node):
             states.append(data)
         response.state = states
         response.success = True
-        # self.get_logger().info("--------->get pwm! end")
         return response
 
     def set_bus_servo_position(self, msg):
@@ -371,7 +367,6 @@ def main():
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
-        # 安全关闭电机速度
         node.board.set_motor_speed([[1, 0], [2, 0], [3, 0], [4, 0]])
         node.destroy_node()
         rclpy.shutdown()

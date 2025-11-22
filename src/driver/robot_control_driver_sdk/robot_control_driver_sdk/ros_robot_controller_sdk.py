@@ -7,11 +7,6 @@ import queue
 import struct
 import serial
 import threading
-from rclpy.logging import get_logger
-
-# 定义模块级别的日志记录器
-logger = get_logger('sdk_logger')
-
 class PacketControllerState(enum.IntEnum):
     # 通信协议的格式(the format of the communication protocol)
     # 0xAA 0x55 Length Function ID Data Checksum
@@ -196,7 +191,9 @@ class Board:
             return None
 
     def get_button(self):
-        # 获取按键key1， key2状态，返回按键ID(1表示按键1，2表示按键2)和状态(0表示按下，1表示松开)(Get the status of buttons 1 and 2, and return the button ID (1 for key1, and 2 for key2) and status (0 for pressed, and 1 for released))
+        # 获取按键key1， key2状态，返回按键ID(1表示按键1，2表示按键2)和状态(0表示按下，1表示松开)
+        # (Get the status of buttons 1 and 2, and return the button ID
+        #  (1 for key1, and 2 for key2) and status (0 for pressed, and 1 for released))
         if self.enable_recv:
             try:
                 data = self.key_queue.get(block=False)
@@ -343,24 +340,9 @@ class Board:
     def set_motor_speed(self, speeds):
         data = [0x01,0x0a,0x00,len(speeds)]
         for idx, vel in speeds:
-            data.extend(struct.pack('<Bh', int(idx), int(vel)))   # Bh = uint8 + int16
+            data.extend(struct.pack('<Bh', int(idx), int(vel)))
         self.buf_write(PacketFunction.PACKET_FUNC_MOTOR, data)
     
-    '''
-    def set_rgb(self, pixels):
-        #data = [0x01, len(pixels), ]
-        #data = pixels
-        data = []
-        #print('data:',data)
-        #if len(pixels) > 4:
-        #data = [0]
-        #for index, r, g, b in pixels:
-        #   data.extend(struct.pack("<BBBB", int(index), int(r), int(g), int(b)))
-        #data.extend(struct.pack("<BBBBBBB", int(0), int(0), int(0), int(222),int(0), int(0), int(222)))
-        data.extend(struct.pack("<BBBBBBB", 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00))
-        print('data:',data)
-        self.buf_write(PacketFunction.PACKET_FUNC_RGB, data)
-    '''
     def set_rgb(self , pixels):
         data = [0x01 , len(pixels),]
         for index , r , g , b in pixels:
@@ -395,8 +377,9 @@ class Board:
                 servo_id, cmd, info = struct.unpack(unpack, data)
                 return info
             except queue.Empty:
-                logger.warning("PWM舵机响应超时")
+                print("PWM舵机响应超时")
                 return None
+            
     def pwm_servo_read_offset(self, servo_id):
         return self.pwm_servo_read_and_unpack(servo_id, 0x09, "<BBb")
 
@@ -543,9 +526,8 @@ class Board:
                             continue
             else:
                 time.sleep(0.01)
-        self.port.close()
-        print("END...")
 
+# 测试代码(test code)
 def bus_servo_test(board):
     board.bus_servo_set_position(1, [[1, 500], [2, 500]])
     time.sleep(1)
@@ -601,63 +583,13 @@ def motor_test(board):
 if __name__ == "__main__":
     board = Board()
     board.enable_reception()
-
-    logger.info("START...")
-    #time.sleep(2)
-    # board.set_led(0.1, 0.9, 1,1)
-    #board.set_led(0.1, 0.9, 5,2)
-    # board.set_buzzer(1900, 0.05, 0.01, 1)
-    #time.sleep(1)
-    #board.set_buzzer(1900, 0.05, 0.01, 1)
-    #time.sleep(1)
-    #board.set_rgb([[2, 100, 0, 0],[1,100,0,0]])
-    #time.sleep(0.5)
-    #board.set_rgb([[2, 0, 0, 255],[1,0,0,255]])
-    #time.sleep(0.5)
-    #board.set_rgb([[2, 255, 0, 0],[1,255,0,0]])
-    #time.sleep(0.5)
-    #board.set_rgb([[1, 0, 255, 0]])
-    #board.set_motor_speed([[1, -0.6], [2, -0.6], [3, 0.6], [4, 0.6]])
-    #time.sleep(1)
-    #board.set_motor_speed([[1, 0], [2, 0], [3, 0], [4, 0]])
     
-    #bus_servo_test(board)
-    #board.bus_servo_set_position(1, [[1, 700], [2, 500]])
-    # pwm_servo_test(board)
-    # last_time = time.time()
+    print("START...")
+
     while True:
         try:
             motor_test(board)
             time.sleep(2)
             print("new set...\n")
-            # board.set_buzzer(3000, 0.05, 0.01, 1)
-            # res = board.get_imu()
-            # if res is not None:
-            #     for item in res:
-            #        print("  {: .8f} ".format(item), end='')
-            #     print()
-            # res = board.get_button()
-            # if res is not None:
-                # print(res)
-            # data = board.get_gamepad()
-            # if data is not None:
-                # print(data[0])
-                # print(data[1])
-            # res = board.get_sbus()
-            # if res is not None:
-                # print(res)
-            # res = board.get_battery()
-            # if res is not None:
-                # print(res)
-            #board.set_rgb([[2, 50, 0, 0],[1,50,0,0]])
-            #time.sleep(0.05)
-            #board.set_rgb([[2, 0, 50, 0],[1,0,50,0]])
-            #time.sleep(0.05)
-            #board.set_rgb([[2, 255, 0, 0],[1,255,0,0]])
-            
-            #time.sleep(0.1)
-            # t = time.time()
-            # print(1/(t - last_time))
-            # last_time = t
         except KeyboardInterrupt:
             break
