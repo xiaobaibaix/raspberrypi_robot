@@ -2,34 +2,34 @@
 import rclpy
 from rclpy.node import Node
 from robot_msgs.msg import MotorsState, MotorState
+import random
+import time
 
 class MotorLoop(Node):
     def __init__(self):
         super().__init__('motor_loop_publisher')
         self.pub = self.create_publisher(MotorsState, '/ros_robot_controller/set_motor', 10)
-        self.timer = self.create_timer(0.5, self.timer_callback)
+        self.timer = self.create_timer(0.2, self.timer_callback)
         self.get_logger().info('0.5-Hz motor loop started')
 
     def timer_callback(self):
         msg = MotorsState()
         msg.data = [
-            MotorState(id=1, rps=100.0),
-            MotorState(id=2, rps=-100.0),
-            MotorState(id=3, rps=-100.0),
-            MotorState(id=4, rps=100.0)
-            ]
+            MotorState(id=1, rps=random.uniform(-120.0, 120.0)),
+            MotorState(id=2, rps=random.uniform(-120.0, 120.0)),
+            MotorState(id=3, rps=random.uniform(-120.0, 120.0)),
+            MotorState(id=4, rps=random.uniform(-120.0, 120.0))
+        ]
         self.pub.publish(msg)
         self.get_logger().info(f'Published: {[m.rps for m in msg.data]}')
 
     def stop_motors(self):
-        """保证 0 速包能发出去"""
         if self.context.ok() and self.pub:
             zero = MotorsState(data=[MotorState(id=i, rps=0.0) for i in range(1,5)])
             self.pub.publish(zero)
             self.get_logger().info('Sent zero-speed before shutdown')
             # 给网络/串口 10 ms 时间把包送走
-            import time
-            time.sleep(0.01)
+            time.sleep(0.1)
 
 def main():
     rclpy.init()

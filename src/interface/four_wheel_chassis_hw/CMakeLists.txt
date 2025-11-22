@@ -11,7 +11,8 @@ find_package(pluginlib REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
-
+find_package(example_interfaces REQUIRED)
+find_package(robot_msgs REQUIRED)
 # 包含目录
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -34,6 +35,8 @@ ament_target_dependencies(${PROJECT_NAME}
   hardware_interface
   rclcpp
   rclcpp_lifecycle
+  example_interfaces
+  robot_msgs
 )
 
 install(TARGETS ${PROJECT_NAME}

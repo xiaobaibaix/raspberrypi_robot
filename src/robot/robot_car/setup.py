@@ -31,6 +31,7 @@ setup(
         'console_scripts': [
             'test_car_publisher=robot_car.test_car_publisher:main',
             'odom_publisher=robot_car.odom_publisher_node:main',
+            "send_motor_node=robot_control_driver_sdk.send_motor_node:main"
         ],
     },
 )

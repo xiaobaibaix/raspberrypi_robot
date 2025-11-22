@@ -1,10 +1,10 @@
 {
-    "cmake.sourceDirectory": "/home/huazhi/ros2_ws/src/fake_hw",
     "python.analysis.extraPaths": [
     "${workspaceFolder}/install/robot_msgs/lib/python3.11/site-packages",
   ],
   "cmake.ignoreCMakeListsMissing": true,
   "files.associations": {
-    "chrono": "cpp"
+    "chrono": "cpp",
+    "functional": "cpp"
   }
 }

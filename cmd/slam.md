@@ -16,3 +16,35 @@ ros2 run turtlebot3_teleop teleop_keyboard
 
 ros2 run nav2_map_server map_saver_cli -f ~/maps/
 
+state_pub_->publish(robot_msgs::msg::MotorsState(
+    robot_msgs::msg::MotorsState().set__data({
+        robot_msgs::msg::MotorState().set__id(1).set__rps(hw_commands_[0]*100),
+        robot_msgs::msg::MotorState().set__id(2).set__rps(-hw_commands_[1]*100),
+        robot_msgs::msg::MotorState().set__id(3).set__rps(-hw_commands_[2]*100),
+        robot_msgs::msg::MotorState().set__id(4).set__rps(hw_commands_[3]*100),
+    })
+));
+hw_velocities_ = hw_commands_;  // 简单模拟：命令即速度
+hw_positions_  = hw_positions_; // 简单模拟：位置不变
+
+
+const double dt = period.seconds();
+for (size_t i = 0; i < info_.joints.size(); ++i)
+{
+    const auto & type = command_interface_types_[i];
+    if (type == "velocity")
+    {
+        hw_velocities_[i] = hw_commands_[i];
+        hw_positions_[i] += hw_velocities_[i] * dt;  // 简单积分模拟
+    }
+    else if (type == "position")
+    {
+        hw_positions_[i] = hw_commands_[i];
+        hw_velocities_[i] = 0.0;
+    }
+    else
+    {
+        // 其他类型未模拟
+        hw_velocities_[i] = 0.0;
+    }
+}

@@ -72,19 +72,6 @@ def generate_launch_description():
         ]
     )
 
-    # RViz2可视化节点
-    # rviz_node = Node(
-    #     package='rviz2',
-    #     executable='rviz2',
-    #     name='rviz',
-    #     arguments=['-d', os.path.join(packagepath, 'config', 'rviz.rviz')],
-    #     parameters=[
-    #         {'use_sim_time': use_gazebo},
-    #     ]
-    # )
-
-    # add_action逐个添加节点
-    # ld.add_action(rviz_node)
     ld.add_action(robot_desc_node)
 
     controller_manager_node = Node(
