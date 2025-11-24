@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 20
+    update_rate: 2
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
     mecanum_drive_controller:
@@ -55,5 +55,5 @@ mecanum_drive_controller:
 
     use_stamped_vel: true
 
-    publish_rate: 50.0 # Hz
+    publish_rate: 2.0 # Hz
 

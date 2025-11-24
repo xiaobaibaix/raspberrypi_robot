@@ -96,8 +96,7 @@ namespace four_wheel_chassis_hw
     {
         (void)time;
         (void)period;
-        hw_velocities_= hw_commands_;
-        hw_positions_  = hw_positions_;
+
         
         return hardware_interface::return_type::OK;
     }
@@ -109,15 +108,40 @@ namespace four_wheel_chassis_hw
         (void)period;
         state_pub_->publish(robot_msgs::msg::MotorsState(
             robot_msgs::msg::MotorsState().set__data({
-                robot_msgs::msg::MotorState().set__id(1).set__rps(hw_commands_[0]*10),
-                robot_msgs::msg::MotorState().set__id(2).set__rps(-hw_commands_[1]*10),
-                robot_msgs::msg::MotorState().set__id(3).set__rps(-hw_commands_[2]*10),
-                robot_msgs::msg::MotorState().set__id(4).set__rps(hw_commands_[3]*10),
+                robot_msgs::msg::MotorState().set__id(1).set__rps(
+                    abs(hw_commands_[0]*50)>200?(200* (hw_commands_[0]>0?1:-1)):hw_commands_[0]*50),
+                robot_msgs::msg::MotorState().set__id(2).set__rps(-1*(
+                    abs(hw_commands_[1]*50)>200?(200* (hw_commands_[1]>0?1:-1)):hw_commands_[1]*50
+                )),
+                robot_msgs::msg::MotorState().set__id(3).set__rps(-1*(
+                    abs(hw_commands_[2]*50)>200?(200* (hw_commands_[2]>0?1:-1)):hw_commands_[2]*50
+                )),
+                robot_msgs::msg::MotorState().set__id(4).set__rps(
+                    abs(hw_commands_[3]*50)>200?(200* (hw_commands_[3]>0?1:-1)):hw_commands_[3]*50),
             })
         ));
 
+        hw_velocities_[0]= hw_commands_[0];
+        hw_velocities_[1]= hw_commands_[1];
+        hw_velocities_[2]= hw_commands_[2];
+        hw_velocities_[3]= hw_commands_[3];
+
+        hw_positions_[0]  += hw_velocities_[0] * period.seconds();
+        hw_positions_[1]  += hw_velocities_[1] * period.seconds();
+        hw_positions_[2]  += hw_velocities_[2] * period.seconds();
+        hw_positions_[3]  += hw_velocities_[3] * period.seconds();
+
+        // RCLCPP_INFO(node_logging_->get_logger(), "%s %s %s %s",
+        //     std::to_string(hw_commands_[0]).c_str(),
+        //     std::to_string(hw_commands_[1]).c_str(),
+        //     std::to_string(hw_commands_[2]).c_str(),
+        //     std::to_string(hw_commands_[3]).c_str()
+        // );
+
         return hardware_interface::return_type::OK;
     }
+
+
 
 }  // namespace four_wheel_chassis_hw
 
