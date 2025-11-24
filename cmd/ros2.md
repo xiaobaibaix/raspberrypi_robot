@@ -1,4 +1,5 @@
 # ros2
+colcon build --symlink-install --allow-overriding mecanum_drive_controller
 
 ros2 pkg create --build-type ament_python --license MIT  <package_name> [options]
 ros2 pkg create --build-type ament_cmake --license MIT  <package_name> [options]

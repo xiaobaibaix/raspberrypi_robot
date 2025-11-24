@@ -5,7 +5,9 @@ controller_manager:
       type: joint_state_broadcaster/JointStateBroadcaster
     mecanum_drive_controller:
       type: mecanum_drive_controller/MecanumDriveController
-
+    imu_sensor_broadcaster:
+      type: imu_sensor_broadcaster/IMUSensorBroadcaster
+      
 mecanum_drive_controller:
   ros__parameters:
     wheel_names: [
@@ -57,3 +59,15 @@ mecanum_drive_controller:
 
     publish_rate: 2.0 # Hz
 
+
+imu_sensor_broadcaster:
+  type: "imu_sensor_broadcaster/IMUSensorBroadcaster"
+  sensor_name: "mpu6050"  # 与 URDF 中 <sensor name> 一致
+  frame_id: "imu"  # 与传感器 Link 名称一致
+
+  accel_x: "imu/accel_x"
+  accel_y: "imu/accel_y"
+  accel_z: "imu/accel_z"
+  gyro_x: "imu/gyro_x"
+  gyro_y: "imu/gyro_y"
+  gyro_z: "imu/gyro_z"

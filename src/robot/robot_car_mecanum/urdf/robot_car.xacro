@@ -24,6 +24,7 @@
         <plugin>gz_ros2_control/GazeboSimSystem</plugin>
       </xacro:if>
       <xacro:unless value="$(arg use_gazebo)">
+        <plugin>mpu6050_hw/MPU6050Hardware</plugin>
         <plugin>four_wheel_chassis_hw/FourWheelChassisHW</plugin>
         <!-- <plugin>mock_components/GenericSystem</plugin>
         <param name="calculate_dynamics">true</param> -->
@@ -54,6 +55,39 @@
       <state_interface name="position"/>
       <state_interface name="velocity"/>
     </joint>
+
+    <sensor name="mpu6050" state_interface_names="
+      mpu6050/accel_x,
+      mpu6050/accel_y,
+      mpu6050/accel_z,
+      mpu6050/gyro_x,
+      mpu6050/gyro_y,
+      mpu6050/gyro_z">
+      <state_interface name="accel_x">
+        <param name="interface_type">linear_acceleration</param>
+        <param name="unit">m/s²</param>
+      </state_interface>
+      <state_interface name="accel_y">
+        <param name="interface_type">linear_acceleration</param>
+        <param name="unit">m/s²</param>
+      </state_interface>
+      <state_interface name="accel_z">
+        <param name="interface_type">linear_acceleration</param>
+        <param name="unit">m/s²</param>
+      </state_interface>
+      <state_interface name="gyro_x">
+        <param name="interface_type">angular_velocity</param>
+        <param name="unit">rad/s</param>
+      </state_interface>
+      <state_interface name="gyro_y">
+        <param name="interface_type">angular_velocity</param>
+        <param name="unit">rad/s</param>
+      </state_interface>
+      <state_interface name="gyro_z">
+        <param name="interface_type">angular_velocity</param>
+        <param name="unit">rad/s</param>
+      </state_interface>
+    </sensor>
   </ros2_control>
   
 </robot>
