@@ -25,7 +25,8 @@
       </xacro:if>
       <xacro:unless value="$(arg use_gazebo)">
         <plugin>four_wheel_chassis_hw/FourWheelChassisHW</plugin>
-         <!-- <plugin>mock_components/GenericSystem</plugin> -->
+        <!-- <plugin>mock_components/GenericSystem</plugin>
+        <param name="calculate_dynamics">true</param> -->
       </xacro:unless>
     </hardware>
     

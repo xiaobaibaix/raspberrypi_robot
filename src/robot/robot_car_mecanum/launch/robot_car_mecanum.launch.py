@@ -70,9 +70,18 @@ def generate_launch_description():
             {'robot_description': ParameterValue(robot_description, value_type=str)}
         ]
     )
-
     ld.add_action(robot_desc_node)
 
+    rviz_node=Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', os.path.join(packagepath, 'config', 'robot_car.rviz')],
+    )
+    ld.add_action(rviz_node)
+
+    # 控制器管理节点（条件性）
     controller_manager_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
