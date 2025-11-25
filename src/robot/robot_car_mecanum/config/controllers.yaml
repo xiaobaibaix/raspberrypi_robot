@@ -61,13 +61,13 @@ mecanum_drive_controller:
 
 
 imu_sensor_broadcaster:
-  type: "imu_sensor_broadcaster/IMUSensorBroadcaster"
-  sensor_name: "mpu6050"  # 与 URDF 中 <sensor name> 一致
-  frame_id: "imu"  # 与传感器 Link 名称一致
+  ros__parameters:
+    sensor_name: "imu"
+    frame_id: "imu"
 
-  accel_x: "imu/accel_x"
-  accel_y: "imu/accel_y"
-  accel_z: "imu/accel_z"
-  gyro_x: "imu/gyro_x"
-  gyro_y: "imu/gyro_y"
-  gyro_z: "imu/gyro_z"
+    accel_x: "imu/accel_x"
+    accel_y: "imu/accel_y"
+    accel_z: "imu/accel_z"
+    gyro_x: "imu/gyro_x"
+    gyro_y: "imu/gyro_y"
+    gyro_z: "imu/gyro_z"

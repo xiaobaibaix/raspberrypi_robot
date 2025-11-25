@@ -23,13 +23,16 @@ namespace mpu6050_hw
   {
     std::vector<hardware_interface::StateInterface> si;
     const auto & j = info_.joints[0];
-    si.emplace_back(j.name, "imu/orientation.x", &orientation_[1]);
-    si.emplace_back(j.name, "imu/orientation.y", &orientation_[2]);
-    si.emplace_back(j.name, "imu/orientation.z", &orientation_[3]);
-    si.emplace_back(j.name, "imu/orientation.w", &orientation_[0]);
-    si.emplace_back(j.name, "imu/angular_velocity.x", &angular_velocity_[0]);
-    si.emplace_back(j.name, "imu/angular_velocity.y", &angular_velocity_[1]);
-    si.emplace_back(j.name, "imu/angular_velocity.z", &angular_velocity_[2]);
+    si.emplace_back(j.name, "orientation.x", &orientation_[1]);
+    si.emplace_back(j.name, "orientation.y", &orientation_[2]);
+    si.emplace_back(j.name, "orientation.z", &orientation_[3]);
+    si.emplace_back(j.name, "orientation.w", &orientation_[0]);
+    si.emplace_back(j.name, "angular_velocity.x", &angular_velocity_[0]);
+    si.emplace_back(j.name, "angular_velocity.y", &angular_velocity_[1]);
+    si.emplace_back(j.name, "angular_velocity.z", &angular_velocity_[2]);
+    si.emplace_back(j.name, "linear_acceleration.x", &ax_);
+    si.emplace_back(j.name, "linear_acceleration.y", &ay_);
+    si.emplace_back(j.name, "linear_acceleration.z", &az_);
     return si;
   }
 

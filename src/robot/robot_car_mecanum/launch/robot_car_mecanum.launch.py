@@ -107,13 +107,20 @@ def generate_launch_description():
         arguments=['mecanum_drive_controller', '--controller-manager', '/controller_manager'],
         output='screen',
     )
+
+    gazebo_imuspawner = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['imu_sensor_controller', '--controller-manager', '/controller_manager'],
+        output='screen',
+    )
     # 修复后的代码
     ld.add_action(RegisterEventHandler(
         event_handler=OnProcessStart(
             target_action=controller_manager_node,
             on_start=[
                 TimerAction(
-                    period=3.0,
+                    period=2.0,
                     actions=[gazebo_jspawner]
                 )
             ]
@@ -127,6 +134,18 @@ def generate_launch_description():
                 TimerAction(
                     period=2.0,
                     actions=[gazebo_diffspawner]
+                )
+            ]
+        )
+    ))
+
+    ld.add_action(RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=gazebo_diffspawner,
+            on_exit=[
+                TimerAction(
+                    period=2.0,
+                    actions=[gazebo_imuspawner]
                 )
             ]
         )
