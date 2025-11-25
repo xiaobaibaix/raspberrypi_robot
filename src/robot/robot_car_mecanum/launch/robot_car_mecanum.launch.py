@@ -111,7 +111,7 @@ def generate_launch_description():
     gazebo_imuspawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['imu_sensor_controller', '--controller-manager', '/controller_manager'],
+        arguments=['imu_sensor_broadcaster', '--controller-manager', '/controller_manager'],
         output='screen',
     )
     # 修复后的代码
@@ -120,7 +120,7 @@ def generate_launch_description():
             target_action=controller_manager_node,
             on_start=[
                 TimerAction(
-                    period=2.0,
+                    period=0.0,
                     actions=[gazebo_jspawner]
                 )
             ]
@@ -132,7 +132,7 @@ def generate_launch_description():
             target_action=gazebo_jspawner,
             on_exit=[
                 TimerAction(
-                    period=2.0,
+                    period=0.0,
                     actions=[gazebo_diffspawner]
                 )
             ]
@@ -144,7 +144,7 @@ def generate_launch_description():
             target_action=gazebo_diffspawner,
             on_exit=[
                 TimerAction(
-                    period=2.0,
+                    period=0.0,
                     actions=[gazebo_imuspawner]
                 )
             ]
