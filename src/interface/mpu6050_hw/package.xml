@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>mpu6050_drive_broadcaster</name>
+  <name>mpu6050_hw</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="2308043842@qq.com">huazhi</maintainer>
@@ -11,18 +11,19 @@
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
+
   <depend>rclcpp</depend>
   <depend>hardware_interface</depend>
   <depend>pluginlib</depend>
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
-  <build_depend>libi2c-dev</build_depend>
   
   <export>
     <build_type>ament_cmake</build_type>
-</export>
-
-  <export>
-    <build_type>ament_cmake</build_type>
+    <!-- 声明这是一个 ros2_control 硬件插件包 -->
+    <ros2_control plugin="${prefix}/mpu6050_hw.xml"/>
+    <!-- 声明插件库的路径 -->
+    <ament_index_cpp index_key="hardware_interface" value="${prefix}/mpu6050_hw.xml"/>
   </export>
+
 </package>
