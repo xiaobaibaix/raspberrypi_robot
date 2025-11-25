@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>four_wheel_chassis_hw</name>
+  <name>mecanum_wheel_chassis_hw</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="2308043842@qq.com">huazhi</maintainer>
@@ -21,9 +21,9 @@
 
   <export>
     <build_type>ament_cmake</build_type>
-        <!-- 声明这是一个 ros2_control 硬件插件包 -->
-    <ros2_control plugin="${prefix}/plugin.xml"/>
+    <!-- 声明这是一个 ros2_control 硬件插件包 -->
+    <ros2_control plugin="${prefix}/mecanum_wheel_chassis_hw.xml"/>
     <!-- 声明插件库的路径 -->
-    <ament_index_cpp index_key="hardware_interface" value="${prefix}/plugin.xml"/>
+    <ament_index_cpp index_key="hardware_interface" value="${prefix}/mecanum_wheel_chassis_hw.xml"/>
   </export>
 </package>

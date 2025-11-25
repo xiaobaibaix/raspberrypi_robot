@@ -20,12 +20,12 @@
 #include "example_interfaces/srv/trigger.hpp"
 #include "robot_msgs/srv/get_pwm_servo_state.hpp"  // 自定义服务
 
-namespace four_wheel_chassis_hw
+namespace mecanum_wheel_chassis_hw
 {
-    class FourWheelChassisHW : public hardware_interface::SystemInterface
+    class MecanumWheelChassisHW : public hardware_interface::SystemInterface
     {
     public:
-        RCLCPP_SHARED_PTR_DEFINITIONS(FourWheelChassisHW)
+        RCLCPP_SHARED_PTR_DEFINITIONS(MecanumWheelChassisHW)
 
         hardware_interface::CallbackReturn on_init(
             const hardware_interface::HardwareComponentInterfaceParams & params) override;

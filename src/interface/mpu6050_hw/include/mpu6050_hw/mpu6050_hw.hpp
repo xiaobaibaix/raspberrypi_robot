@@ -35,6 +35,8 @@ namespace mpu6050_hw
     static constexpr uint8_t GYRO_CONFIG  = 0x1B;
     static constexpr uint8_t ACCEL_CONFIG = 0x1C;
     static constexpr uint8_t ACCEL_XOUT_H = 0x3B;
+    // i2c filename
+    std::string i2c_filename_;
 
     // 原始量
     double ax_ = 0, ay_ = 0, az_ = 0;

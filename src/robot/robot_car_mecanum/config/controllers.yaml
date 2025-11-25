@@ -65,13 +65,6 @@ imu_sensor_broadcaster:
     sensor_name: "imu_joint"   # 与 URDF <joint name=""> 一致
     frame_id: "imu_link"       # 你的 TF 帧 ID
 
-    orientation.x: "orientation.x"
-    orientation.y: "orientation.y"
-    orientation.z: "orientation.z"
-    orientation.w: "orientation.w"
-    angular_velocity.x: "angular_velocity.x"
-    angular_velocity.y: "angular_velocity.y"
-    angular_velocity.z: "angular_velocity.z"
-    linear_acceleration.x: "linear_acceleration.x"
-    linear_acceleration.y: "linear_acceleration.y"
-    linear_acceleration.z: "linear_acceleration.z"
+    orientation_covariance: [0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001]
+    angular_velocity_covariance: [0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001]
+    linear_acceleration_covariance: [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]

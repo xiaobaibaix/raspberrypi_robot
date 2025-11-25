@@ -1,10 +1,10 @@
-#include "four_wheel_chassis_hw/four_wheel_chassis.hpp"
+#include "mecanum_wheel_chassis_hw/mecanum_wheel_chassis_hw.hpp"
 #include <vector>
 #include <string>
 #include "robot_msgs/msg/motor_state.hpp"   // 自定义消息
-namespace four_wheel_chassis_hw
+namespace mecanum_wheel_chassis_hw
 {
-    hardware_interface::CallbackReturn FourWheelChassisHW::on_init(
+    hardware_interface::CallbackReturn MecanumWheelChassisHW::on_init(
     const hardware_interface::HardwareComponentInterfaceParams & params)
     {
         if (hardware_interface::SystemInterface::on_init(params) !=  // 注意：这里传入 params 而非 info
@@ -34,7 +34,7 @@ namespace four_wheel_chassis_hw
         return hardware_interface::CallbackReturn::SUCCESS;
     }
 
-    std::vector<hardware_interface::StateInterface> FourWheelChassisHW::export_state_interfaces()
+    std::vector<hardware_interface::StateInterface> MecanumWheelChassisHW::export_state_interfaces()
     {
         std::vector<hardware_interface::StateInterface> state_interfaces;
         for (size_t i = 0; i < info_.joints.size(); ++i)
@@ -49,7 +49,7 @@ namespace four_wheel_chassis_hw
         return state_interfaces;
     }
 
-    std::vector<hardware_interface::CommandInterface> FourWheelChassisHW::export_command_interfaces()
+    std::vector<hardware_interface::CommandInterface> MecanumWheelChassisHW::export_command_interfaces()
     {
         std::vector<hardware_interface::CommandInterface> command_interfaces;
         for (size_t i = 0; i < info_.joints.size(); ++i)
@@ -62,7 +62,7 @@ namespace four_wheel_chassis_hw
         return command_interfaces;
     }
     
-    hardware_interface::CallbackReturn FourWheelChassisHW::on_activate(
+    hardware_interface::CallbackReturn MecanumWheelChassisHW::on_activate(
         const rclcpp_lifecycle::State & previous_state)
     {
         (void)previous_state;  // 新增：显式声明参数未使用
@@ -82,7 +82,7 @@ namespace four_wheel_chassis_hw
         return hardware_interface::CallbackReturn::SUCCESS;
     }
 
-    hardware_interface::CallbackReturn FourWheelChassisHW::on_deactivate(
+    hardware_interface::CallbackReturn MecanumWheelChassisHW::on_deactivate(
         const rclcpp_lifecycle::State & previous_state)
     {
         (void)previous_state;
@@ -91,7 +91,7 @@ namespace four_wheel_chassis_hw
         return hardware_interface::CallbackReturn::SUCCESS;
     }   
 
-    hardware_interface::return_type FourWheelChassisHW::read(
+    hardware_interface::return_type MecanumWheelChassisHW::read(
         const rclcpp::Time & time, const rclcpp::Duration & period)
     {
         (void)time;
@@ -101,7 +101,7 @@ namespace four_wheel_chassis_hw
         return hardware_interface::return_type::OK;
     }
 
-    hardware_interface::return_type FourWheelChassisHW::write(
+    hardware_interface::return_type MecanumWheelChassisHW::write(
         const rclcpp::Time & time, const rclcpp::Duration & period)
     {
         (void)time;
@@ -146,4 +146,4 @@ namespace four_wheel_chassis_hw
 }  // namespace four_wheel_chassis_hw
 
 #include "pluginlib/class_list_macros.hpp"
-PLUGINLIB_EXPORT_CLASS(four_wheel_chassis_hw::FourWheelChassisHW, hardware_interface::SystemInterface)
+PLUGINLIB_EXPORT_CLASS(mecanum_wheel_chassis_hw::MecanumWheelChassisHW, hardware_interface::SystemInterface)

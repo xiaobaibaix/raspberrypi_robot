@@ -9,12 +9,16 @@ namespace mpu6050_hw
   {
     if (SensorInterface::on_init(params) != CallbackReturn::SUCCESS)
       return CallbackReturn::ERROR;
+    const std::unordered_map<std::string, std::string> &hw_params = 
+      params.hardware_info.hardware_parameters;
 
-    // 固定 1 个 IMU joint，info 里必须叫 "mpu6050" 或有 1 个 joint
-    if (info_.joints.size() != 1) {
-      RCLCPP_ERROR(rclcpp::get_logger("MPU6050HW"), "Need exactly 1 joint in URDF");
+    auto i2c_file_it = hw_params.find("i2c_file_name");
+    if (i2c_file_it == hw_params.end()) {
+      RCLCPP_ERROR(rclcpp::get_logger("MPU6050HW"), "错误：URDF 中未配置 i2c_file_name 参数！");
       return CallbackReturn::ERROR;
     }
+    i2c_filename_ = i2c_file_it->second;  // 取出键对应的值
+
     return CallbackReturn::SUCCESS;
   }
 
@@ -22,25 +26,24 @@ namespace mpu6050_hw
   MPU6050HW::export_state_interfaces()
   {
     std::vector<hardware_interface::StateInterface> si;
-    const auto & j = info_.joints[0];
-    si.emplace_back(j.name, "orientation.x", &orientation_[1]);
-    si.emplace_back(j.name, "orientation.y", &orientation_[2]);
-    si.emplace_back(j.name, "orientation.z", &orientation_[3]);
-    si.emplace_back(j.name, "orientation.w", &orientation_[0]);
-    si.emplace_back(j.name, "angular_velocity.x", &angular_velocity_[0]);
-    si.emplace_back(j.name, "angular_velocity.y", &angular_velocity_[1]);
-    si.emplace_back(j.name, "angular_velocity.z", &angular_velocity_[2]);
-    si.emplace_back(j.name, "linear_acceleration.x", &ax_);
-    si.emplace_back(j.name, "linear_acceleration.y", &ay_);
-    si.emplace_back(j.name, "linear_acceleration.z", &az_);
+    si.emplace_back("", "orientation.x", &orientation_[1]);
+    si.emplace_back("", "orientation.y", &orientation_[2]);
+    si.emplace_back("", "orientation.z", &orientation_[3]);
+    si.emplace_back("", "orientation.w", &orientation_[0]);
+    si.emplace_back("", "angular_velocity.x", &angular_velocity_[0]);
+    si.emplace_back("", "angular_velocity.y", &angular_velocity_[1]);
+    si.emplace_back("", "angular_velocity.z", &angular_velocity_[2]);
+    si.emplace_back("", "linear_acceleration.x", &ax_);
+    si.emplace_back("", "linear_acceleration.y", &ay_);
+    si.emplace_back("", "linear_acceleration.z", &az_);
     return si;
   }
 
   hardware_interface::CallbackReturn MPU6050HW::on_activate(const rclcpp_lifecycle::State &)
   {
-    i2c_fd_ = open("/dev/i2c-1", O_RDWR);
+    i2c_fd_ = open(i2c_filename_.c_str(), O_RDWR);
     if (i2c_fd_ < 0) {
-      RCLCPP_ERROR(rclcpp::get_logger("MPU6050HW"), "Cannot open /dev/i2c-1");
+      RCLCPP_ERROR(rclcpp::get_logger("MPU6050HW"), "Cannot open %s", i2c_filename_.c_str());
       return CallbackReturn::ERROR;
     }
     if (ioctl(i2c_fd_, I2C_SLAVE, MPU6050_ADDR) < 0) {
@@ -61,12 +64,11 @@ namespace mpu6050_hw
     return CallbackReturn::SUCCESS;
   }
 
-  hardware_interface::return_type MPU6050HW::read(const rclcpp::Time &,
-                                                  const rclcpp::Duration & period)
+  hardware_interface::return_type MPU6050HW::read(const rclcpp::Time &,const rclcpp::Duration & period)
   {
     uint8_t buf[14];
     if (!i2c_read(ACCEL_XOUT_H, buf, 14))
-      return hardware_interface::return_type::ERROR;
+      return hardware_interface::return_type::OK;
 
     // 原始数据 16 bit 有符号
     auto convert = [&](int hi, int lo) -> double {

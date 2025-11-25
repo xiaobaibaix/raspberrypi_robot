@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(four_wheel_chassis_hw)
+project(mecanum_wheel_chassis_hw)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -23,7 +23,7 @@ ament_export_include_directories(
 )
 
 add_library(${PROJECT_NAME} SHARED
-  src/four_wheel_chassis.cpp
+  src/mecanum_wheel_chassis_hw.cpp
 )
 
 # 目标编译特性
@@ -45,6 +45,6 @@ install(TARGETS ${PROJECT_NAME}
 
 install(DIRECTORY include/ DESTINATION include)
 
-pluginlib_export_plugin_description_file(hardware_interface plugin.xml)
+pluginlib_export_plugin_description_file(hardware_interface mecanum_wheel_chassis_hw.xml)
 
 ament_package()
