@@ -22,7 +22,7 @@
 #include <utility>
 #include <vector>
 
-#include "mecanum_drive_controller/mecanum_drive_controller.hpp"
+#include "mecanum_controller/mecanum_controller.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
 #include "rclcpp/logging.hpp"
@@ -37,7 +37,7 @@ constexpr auto DEFAULT_ODOMETRY_TOPIC = "~/odom";
 constexpr auto DEFAULT_TRANSFORM_TOPIC = "/tf";
 }  // namespace
 
-namespace mecanum_drive_controller
+namespace mecanum_controller
 {
 using namespace std::chrono_literals;
 using controller_interface::interface_configuration_type;
@@ -46,14 +46,16 @@ using hardware_interface::HW_IF_POSITION;
 using hardware_interface::HW_IF_VELOCITY;
 using lifecycle_msgs::msg::State;
 
-MecanumDriveController::MecanumDriveController() : controller_interface::ControllerInterface() {}
+MecanumController::MecanumDriveController() : controller_interface::ControllerInterface() {
 
-const char * MecanumDriveController::feedback_type() const
+}
+
+const char * MecanumController::feedback_type() const
 {
   return params_.position_feedback ? HW_IF_POSITION : HW_IF_VELOCITY;
 }
 
-controller_interface::CallbackReturn MecanumDriveController::on_init()
+controller_interface::CallbackReturn MecanumController::on_init()
 {
   try
   {
@@ -70,7 +72,7 @@ controller_interface::CallbackReturn MecanumDriveController::on_init()
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-InterfaceConfiguration MecanumDriveController::command_interface_configuration() const
+InterfaceConfiguration MecanumController::command_interface_configuration() const
 {
   std::vector<std::string> conf_names;
   for (const auto & joint_name : params_.wheel_names)
@@ -80,7 +82,7 @@ InterfaceConfiguration MecanumDriveController::command_interface_configuration()
   return {interface_configuration_type::INDIVIDUAL, conf_names};
 }
 
-InterfaceConfiguration MecanumDriveController::state_interface_configuration() const
+InterfaceConfiguration MecanumController::state_interface_configuration() const
 {
   std::vector<std::string> conf_names;
   for (const auto & joint_name : params_.wheel_names)
@@ -90,7 +92,7 @@ InterfaceConfiguration MecanumDriveController::state_interface_configuration() c
   return {interface_configuration_type::INDIVIDUAL, conf_names};
 }
 
-controller_interface::return_type MecanumDriveController::update(
+controller_interface::return_type MecanumController::update(
   const rclcpp::Time & time, const rclcpp::Duration & period)
 {
   auto logger = get_node()->get_logger();
@@ -264,7 +266,7 @@ controller_interface::return_type MecanumDriveController::update(
   return controller_interface::return_type::OK;
 }
 
-controller_interface::CallbackReturn MecanumDriveController::on_configure(
+controller_interface::CallbackReturn MecanumController::on_configure(
   const rclcpp_lifecycle::State &)
 {
   auto logger = get_node()->get_logger();
@@ -506,7 +508,7 @@ controller_interface::CallbackReturn MecanumDriveController::on_configure(
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-controller_interface::CallbackReturn MecanumDriveController::on_activate(
+controller_interface::CallbackReturn MecanumController::on_activate(
   const rclcpp_lifecycle::State &)
 {
   const auto wheels_result =
@@ -532,7 +534,7 @@ controller_interface::CallbackReturn MecanumDriveController::on_activate(
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-controller_interface::CallbackReturn MecanumDriveController::on_deactivate(
+controller_interface::CallbackReturn MecanumController::on_deactivate(
   const rclcpp_lifecycle::State &)
 {
   subscriber_is_active_ = false;
@@ -545,7 +547,7 @@ controller_interface::CallbackReturn MecanumDriveController::on_deactivate(
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-controller_interface::CallbackReturn MecanumDriveController::on_cleanup(
+controller_interface::CallbackReturn MecanumController::on_cleanup(
   const rclcpp_lifecycle::State &)
 {
   if (!reset())
@@ -556,7 +558,7 @@ controller_interface::CallbackReturn MecanumDriveController::on_cleanup(
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-controller_interface::CallbackReturn MecanumDriveController::on_error(const rclcpp_lifecycle::State &)
+controller_interface::CallbackReturn MecanumController::on_error(const rclcpp_lifecycle::State &)
 {
   if (!reset())
   {
@@ -565,7 +567,7 @@ controller_interface::CallbackReturn MecanumDriveController::on_error(const rclc
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
-bool MecanumDriveController::reset()
+bool MecanumController::reset()
 {
   odometry_.resetOdometry();
 
@@ -584,7 +586,7 @@ bool MecanumDriveController::reset()
   return true;
 }
 
-void MecanumDriveController::halt()
+void MecanumController::halt()
 {
   const auto halt_wheels = [](auto & wheel_handles)
   {
@@ -597,7 +599,7 @@ void MecanumDriveController::halt()
   halt_wheels(registered_wheel_handles_);
 }
 
-controller_interface::CallbackReturn MecanumDriveController::configure_wheels(
+controller_interface::CallbackReturn MecanumController::configure_wheels(
   const std::vector<std::string> & wheel_names,
   std::vector<WheelHandle> & registered_handles)
 {
@@ -648,9 +650,9 @@ controller_interface::CallbackReturn MecanumDriveController::configure_wheels(
 
   return controller_interface::CallbackReturn::SUCCESS;
 }
-}  // namespace mecanum_drive_controller
+}  // namespace mecanum_controller
 
 #include "class_loader/register_macro.hpp"
 
 CLASS_LOADER_REGISTER_CLASS(
-  mecanum_drive_controller::MecanumDriveController, controller_interface::ControllerInterface)
+  mecanum_controller::MecanumController, controller_interface::ControllerInterface)

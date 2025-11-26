@@ -23,7 +23,7 @@
 
 #include "control_toolbox/rate_limiter.hpp"
 
-namespace mecanum_drive_controller
+namespace mecanum_controller
 {
 class SpeedLimiter
 {

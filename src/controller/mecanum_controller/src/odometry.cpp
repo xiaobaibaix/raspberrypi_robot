@@ -18,9 +18,9 @@
 
 #include <cmath>
 
-#include "mecanum_drive_controller/odometry.hpp"
+#include "mecanum_controller/odometry.hpp"
 
-namespace mecanum_drive_controller
+namespace mecanum_controller
 {
 Odometry::Odometry(size_t velocity_rolling_window_size)
 : timestamp_(0.0),

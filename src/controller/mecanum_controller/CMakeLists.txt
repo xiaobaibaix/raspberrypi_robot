@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(mecanum_drive_controller)
+project(mecanum_controller)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
   add_compile_options(-Wall -Wextra -Werror=conversion -Werror=unused-but-set-variable
@@ -35,26 +35,25 @@ endforeach()
 add_compile_definitions(RCPPUTILS_VERSION_MAJOR=${rcpputils_VERSION_MAJOR})
 add_compile_definitions(RCPPUTILS_VERSION_MINOR=${rcpputils_VERSION_MINOR})
 
-generate_parameter_library(mecanum_drive_controller_parameters
-  src/mecanum_drive_controller_parameter.yaml
-  include/mecanum_drive_controller/custom_validators.hpp
+generate_parameter_library(mecanum_controller_parameters
+  src/mecanum_controller_parameter.yaml
+  include/mecanum_controller/custom_validators.hpp
 )
 
-add_library(mecanum_drive_controller SHARED
-  src/mecanum_drive_controller.cpp
+add_library(mecanum_controller SHARED
+  src/mecanum_controller.cpp
   src/odometry.cpp
 )
-target_compile_features(mecanum_drive_controller PUBLIC cxx_std_17)
-target_include_directories(mecanum_drive_controller PUBLIC
+target_compile_features(mecanum_controller PUBLIC cxx_std_17)
+target_include_directories(mecanum_controller PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/mecanum_drive_controller>
+  $<INSTALL_INTERFACE:include/mecanum_controller>
 )
-target_link_libraries(mecanum_drive_controller
+target_link_libraries(mecanum_controller
   PUBLIC
-    mecanum_drive_controller_parameters)
-ament_target_dependencies(mecanum_drive_controller PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
-pluginlib_export_plugin_description_file(controller_interface mecanum_drive_plugin.xml)
-
+    mecanum_controller_parameters)
+ament_target_dependencies(mecanum_controller PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
+pluginlib_export_plugin_description_file(controller_interface mecanum_controller_plugin.xml)
 #if(BUILD_TESTING)
 #  find_package(ament_cmake_gmock REQUIRED)
 #  find_package(controller_manager REQUIRED)
@@ -87,15 +86,15 @@ pluginlib_export_plugin_description_file(controller_interface mecanum_drive_plug
 
 install(
   DIRECTORY include/
-  DESTINATION include/mecanum_drive_controller
+  DESTINATION include/mecanum_controller
 )
-install(TARGETS mecanum_drive_controller mecanum_drive_controller_parameters
-  EXPORT export_mecanum_drive_controller
+install(TARGETS mecanum_controller mecanum_controller_parameters
+  EXPORT export_mecanum_controller
   RUNTIME DESTINATION bin
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
 )
 
-ament_export_targets(export_mecanum_drive_controller HAS_LIBRARY_TARGET)
+ament_export_targets(export_mecanum_controller HAS_LIBRARY_TARGET)
 ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
 ament_package()

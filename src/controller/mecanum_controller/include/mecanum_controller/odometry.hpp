@@ -30,7 +30,7 @@
 #include "rcppmath/rolling_mean_accumulator.hpp"
 #endif
 
-namespace mecanum_drive_controller
+namespace mecanum_controller
 {
 class Odometry
 {

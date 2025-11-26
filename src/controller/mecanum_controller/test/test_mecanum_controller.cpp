@@ -19,7 +19,7 @@
 #include <utility>
 #include <vector>
 
-#include "mecanum_drive_controller/mecanum_drive_controller.hpp"
+#include "mecanum_controller/mecanum_controller.hpp"
 #include "hardware_interface/loaned_command_interface.hpp"
 #include "hardware_interface/loaned_state_interface.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"

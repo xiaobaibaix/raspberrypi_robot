@@ -26,7 +26,7 @@
 #include <rsl/parameter_validators.hpp>
 #include <tl_expected/expected.hpp>
 
-namespace mecanum_drive_controller
+namespace mecanum_controller
 {
 
 /**
