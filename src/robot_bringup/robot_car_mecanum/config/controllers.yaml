@@ -3,12 +3,12 @@ controller_manager:
     update_rate: 2
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
-    mecanum_drive_controller:
-      type: mecanum_drive_controller/MecanumDriveController
+    mecanum_controller:
+      type: mecanum_controller/MecanumController
     imu_sensor_broadcaster:
       type: imu_sensor_broadcaster/IMUSensorBroadcaster
       
-mecanum_drive_controller:
+mecanum_controller:
   ros__parameters:
     wheel_names: [
       "left_front_wheel_joint", 

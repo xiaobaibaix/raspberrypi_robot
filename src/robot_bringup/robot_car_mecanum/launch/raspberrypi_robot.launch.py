@@ -16,7 +16,7 @@ def generate_launch_description():
 
     # ② 硬件相关控制器（ spawner 可远程，但这里放本地也可）
     jspawner   = Node(package='controller_manager', executable='spawner', arguments=['joint_state_broadcaster'])
-    diffspawner= Node(package='controller_manager', executable='spawner', arguments=['mecanum_drive_controller'])
+    diffspawner= Node(package='controller_manager', executable='spawner', arguments=['mecanum_controller'])
     imuspawner = Node(package='controller_manager', executable='spawner', arguments=['imu_sensor_broadcaster'])
 
     return LaunchDescription([

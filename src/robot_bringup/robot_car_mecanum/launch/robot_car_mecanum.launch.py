@@ -104,7 +104,7 @@ def generate_launch_description():
     gazebo_diffspawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['mecanum_drive_controller', '--controller-manager', '/controller_manager'],
+        arguments=['mecanum_controller', '--controller-manager', '/controller_manager'],
         output='screen',
     )
 

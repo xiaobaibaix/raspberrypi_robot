@@ -15,8 +15,8 @@
 // TODO(christophfroehlich) remove this file and use it from control_toolbox once
 // https://github.com/PickNikRobotics/generate_parameter_library/pull/213 is merged and released
 
-#ifndef MECANUM_DRIVE_CONTROLLER__CUSTOM_VALIDATORS_HPP_
-#define MECANUM_DRIVE_CONTROLLER__CUSTOM_VALIDATORS_HPP_
+#ifndef MECANUM_CONTROLLER__CUSTOM_VALIDATORS_HPP_
+#define MECANUM_CONTROLLER__CUSTOM_VALIDATORS_HPP_
 
 #include <fmt/core.h>
 

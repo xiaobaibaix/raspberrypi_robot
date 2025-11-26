@@ -19,8 +19,8 @@
  * Author: Paul Mathieu
  */
 
-#ifndef MECANUM_DRIVE_CONTROLLER__ODOMETRY_HPP_
-#define MECANUM_DRIVE_CONTROLLER__ODOMETRY_HPP_
+#ifndef MECANUM_CONTROLLER__ODOMETRY_HPP_
+#define MECANUM_CONTROLLER__ODOMETRY_HPP_
 
 #include "rclcpp/time.hpp"
 // \note The versions conditioning is added here to support the source-compatibility with Humble

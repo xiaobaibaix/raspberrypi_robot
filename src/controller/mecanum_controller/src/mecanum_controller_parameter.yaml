@@ -1,4 +1,4 @@
-mecanum_drive_controller:
+mecanum_controller:
   wheel_names: {
     type: string_array,
     default_value: [],
@@ -122,14 +122,14 @@ mecanum_drive_controller:
         type: double,
         default_value: .NAN,
         validation: {
-          "mecanum_drive_controller::gt_eq_or_nan<>": [0.0]
+          "mecanum_controller::gt_eq_or_nan<>": [0.0]
         }
       }
       min_velocity: {
         type: double,
         default_value: .NAN,
         validation: {
-          "mecanum_drive_controller::lt_eq_or_nan<>": [0.0]
+          "mecanum_controller::lt_eq_or_nan<>": [0.0]
         }
       }
       max_acceleration: {
@@ -137,7 +137,7 @@ mecanum_drive_controller:
         default_value: .NAN,
         description: "Maximum acceleration in forward direction.",
         validation: {
-          "mecanum_drive_controller::gt_eq_or_nan<>": [0.0]
+          "mecanum_controller::gt_eq_or_nan<>": [0.0]
         }
       }
       max_deceleration: {
@@ -145,7 +145,7 @@ mecanum_drive_controller:
         default_value: .NAN,
         description: "Maximum deceleration in forward direction.",
         validation: {
-          "mecanum_drive_controller::lt_eq_or_nan<>": [0.0]
+          "mecanum_controller::lt_eq_or_nan<>": [0.0]
         }
       }
       min_acceleration: {
@@ -158,7 +158,7 @@ mecanum_drive_controller:
         default_value: .NAN,
         description: "Maximum acceleration in reverse direction. If not set, -max_acceleration will be used.",
         validation: {
-          "mecanum_drive_controller::lt_eq_or_nan<>": [0.0]
+          "mecanum_controller::lt_eq_or_nan<>": [0.0]
         }
       }
       max_deceleration_reverse: {
@@ -166,21 +166,21 @@ mecanum_drive_controller:
         default_value: .NAN,
         description: "Maximum deceleration in reverse direction. If not set, -max_deceleration will be used.",
         validation: {
-          "mecanum_drive_controller::gt_eq_or_nan<>": [0.0]
+          "mecanum_controller::gt_eq_or_nan<>": [0.0]
         }
       }
       max_jerk: {
         type: double,
         default_value: .NAN,
         validation: {
-          "mecanum_drive_controller::gt_eq_or_nan<>": [0.0]
+          "mecanum_controller::gt_eq_or_nan<>": [0.0]
         }
       }
       min_jerk: {
         type: double,
         default_value: .NAN,
         validation: {
-          "mecanum_drive_controller::lt_eq_or_nan<>": [0.0]
+          "mecanum_controller::lt_eq_or_nan<>": [0.0]
         }
       }
   angular:
@@ -204,14 +204,14 @@ mecanum_drive_controller:
         type: double,
         default_value: .NAN,
         validation: {
-          "mecanum_drive_controller::gt_eq_or_nan<>": [0.0]
+          "mecanum_controller::gt_eq_or_nan<>": [0.0]
         }
       }
       min_velocity: {
         type: double,
         default_value: .NAN,
         validation: {
-          "mecanum_drive_controller::lt_eq_or_nan<>": [0.0]
+          "mecanum_controller::lt_eq_or_nan<>": [0.0]
         }
       }
       max_acceleration: {
@@ -219,7 +219,7 @@ mecanum_drive_controller:
         default_value: .NAN,
         description: "Maximum acceleration in positive direction.",
         validation: {
-          "mecanum_drive_controller::gt_eq_or_nan<>": [0.0]
+          "mecanum_controller::gt_eq_or_nan<>": [0.0]
         }
       }
       max_deceleration: {
@@ -227,7 +227,7 @@ mecanum_drive_controller:
         default_value: .NAN,
         description: "Maximum deceleration in positive direction.",
         validation: {
-          "mecanum_drive_controller::lt_eq_or_nan<>": [0.0]
+          "mecanum_controller::lt_eq_or_nan<>": [0.0]
         }
       }
       min_acceleration: {
@@ -240,7 +240,7 @@ mecanum_drive_controller:
         default_value: .NAN,
         description: "Maximum acceleration in negative direction. If not set, -max_acceleration will be used.",
         validation: {
-          "mecanum_drive_controller::lt_eq_or_nan<>": [0.0]
+          "mecanum_controller::lt_eq_or_nan<>": [0.0]
         }
       }
       max_deceleration_reverse: {
@@ -248,20 +248,20 @@ mecanum_drive_controller:
         default_value: .NAN,
         description: "Maximum deceleration in negative direction. If not set, -max_deceleration will be used.",
         validation: {
-          "mecanum_drive_controller::gt_eq_or_nan<>": [0.0]
+          "mecanum_controller::gt_eq_or_nan<>": [0.0]
         }
       }
       max_jerk: {
         type: double,
         default_value: .NAN,
         validation: {
-          "mecanum_drive_controller::gt_eq_or_nan<>": [0.0]
+          "mecanum_controller::gt_eq_or_nan<>": [0.0]
         }
       }
       min_jerk: {
         type: double,
         default_value: .NAN,
         validation: {
-          "mecanum_drive_controller::lt_eq_or_nan<>": [0.0]
+          "mecanum_controller::lt_eq_or_nan<>": [0.0]
         }
       }

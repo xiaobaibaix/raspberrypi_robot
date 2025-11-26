@@ -1,6 +1,20 @@
 # ros2
 colcon build --symlink-install --allow-overriding mecanum_drive_controller --packages-select 
 
+sudo apt update && sudo apt install -y \
+    ninja-build \
+    build-essential \
+    gcc \
+    g++ \
+    cmake \
+    ccache
+
+
+colcon build --symlink-install --parallel-workers $(nproc) \
+             --cmake-args -GNinja -DCMAKE_BUILD_TYPE=Release \
+                          -DBUILD_TESTING=OFF \
+                          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
 ros2 pkg create --build-type ament_python --license MIT  <package_name> [options]
 ros2 pkg create --build-type ament_cmake --license MIT  <package_name> [options]
 
