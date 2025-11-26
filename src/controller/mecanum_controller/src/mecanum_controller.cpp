@@ -46,7 +46,7 @@ using hardware_interface::HW_IF_POSITION;
 using hardware_interface::HW_IF_VELOCITY;
 using lifecycle_msgs::msg::State;
 
-MecanumController::MecanumDriveController() : controller_interface::ControllerInterface() {
+MecanumController::MecanumController() : controller_interface::ControllerInterface() {
 
 }
 
