@@ -16,14 +16,14 @@ class MecanumKeyboardControl(Node):
         # 发布TwistStamped消息
         self.publisher_ = self.create_publisher(
             TwistStamped,  # 修改消息类型
-            '/mecanum_drive_controller/cmd_vel', 
+            '/mecanum_controller/cmd_vel', 
             10
         )
         
         # 麦轮控制参数
-        self.linear_speed = 300.0   # m/s
-        self.angular_speed = 300.0  # rad/s
-        self.strafe_speed = 300.0   # m/s 横向移动速度
+        self.linear_speed = 0.5   # m/s
+        self.angular_speed = 0.5  # rad/s
+        self.strafe_speed = 0.5   # m/s 横向移动速度
         
         self.settings = termios.tcgetattr(sys.stdin)
         self.get_logger().info('''

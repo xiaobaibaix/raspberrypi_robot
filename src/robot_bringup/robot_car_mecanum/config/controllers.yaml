@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 2
+    update_rate: 50
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
     mecanum_controller:
@@ -18,7 +18,7 @@ mecanum_controller:
 
     wheel_separation_x: 0.3
     wheel_separation_y: 0.3
-    wheel_radius: 0.5
+    wheel_radius: 0.05
 
     enable_odom_tf: true
     odom_frame_id: odom
@@ -51,20 +51,21 @@ mecanum_controller:
         max_jerk: 15.7  
 
     velocity_rolling_window_size: 10
-
+    
+    # 是否开环控制
     open_loop: false
     position_feedback: true
 
     use_stamped_vel: true
 
-    publish_rate: 2.0 # Hz
+    publish_rate: 50.0 # Hz
 
 
 imu_sensor_broadcaster:
   ros__parameters:
-    sensor_name: "imu_joint"   # 与 URDF <joint name=""> 一致
+    sensor_name: "mpu6050"   # 与 URDF <joint name=""> 一致
     frame_id: "imu_link"       # 你的 TF 帧 ID
-
+    
     orientation_covariance: [0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001]
     angular_velocity_covariance: [0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001]
     linear_acceleration_covariance: [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]

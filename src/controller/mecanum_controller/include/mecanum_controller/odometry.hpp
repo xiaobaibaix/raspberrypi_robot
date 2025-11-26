@@ -23,7 +23,7 @@
 #define MECANUM_CONTROLLER__ODOMETRY_HPP_
 
 #include "rclcpp/time.hpp"
-// \note The versions conditioning is added here to support the source-compatibility with Humble
+// \note The versions conditioning is added here to support thesource-compatibility with Humble
 #if RCPPUTILS_VERSION_MAJOR >= 2 && RCPPUTILS_VERSION_MINOR >= 6
 #include "rcpputils/rolling_mean_accumulator.hpp"
 #else
@@ -39,9 +39,11 @@ public:
 
   void init(const rclcpp::Time & time);
   bool update(double front_left_pos, double front_right_pos, double rear_left_pos, double rear_right_pos, const rclcpp::Time & time);
-  bool updateFromVelocity(double front_left_pos, double front_right_pos, double rear_left_pos, double rear_right_pos, const rclcpp::Time & time);
+  bool updateFromVelocity(double front_left_vel, double front_right_vel, double rear_left_vel, double rear_right_vel, const rclcpp::Time & time);
+  bool updateFromDisplacement(double front_left_disp, double front_right_disp, double rear_left_disp, double rear_right_disp, const rclcpp::Time & time);
   void updateOpenLoop(double linear_x, double linear_y, double angular, const rclcpp::Time & time);
   void resetOdometry();
+  void resetWheelPositions(double front_left_pos, double front_right_pos, double rear_left_pos, double rear_right_pos);
 
   double getX() const { return x_; }
   double getY() const { return y_; }
@@ -76,7 +78,7 @@ private:
   // Current velocity:
   double linear_x_;   //   [m/s]
   double linear_y_;   //   [m/s]
-  double angular_;  // [rad/s]
+  double angular_;    // [rad/s]
 
   // Wheel kinematic parameters [m]:
   double wheel_separation_x_;
@@ -96,6 +98,6 @@ private:
   RollingMeanAccumulator angular_accumulator_;
 };
 
-}  // namespace mecanum_drive_controller
+}  // namespace mecanum_controller
 
-#endif  // MECANUM_DRIVE_CONTROLLER__ODOMETRY_HPP_
+#endif  // MECANUM_CONTROLLER__ODOMETRY_HPP_

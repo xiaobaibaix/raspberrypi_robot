@@ -26,16 +26,21 @@ namespace mpu6050_hw
   MPU6050HW::export_state_interfaces()
   {
     std::vector<hardware_interface::StateInterface> si;
-    si.emplace_back("", "orientation.x", &orientation_[1]);
-    si.emplace_back("", "orientation.y", &orientation_[2]);
-    si.emplace_back("", "orientation.z", &orientation_[3]);
-    si.emplace_back("", "orientation.w", &orientation_[0]);
-    si.emplace_back("", "angular_velocity.x", &angular_velocity_[0]);
-    si.emplace_back("", "angular_velocity.y", &angular_velocity_[1]);
-    si.emplace_back("", "angular_velocity.z", &angular_velocity_[2]);
-    si.emplace_back("", "linear_acceleration.x", &ax_);
-    si.emplace_back("", "linear_acceleration.y", &ay_);
-    si.emplace_back("", "linear_acceleration.z", &az_);
+    // 用 URDF 里的完整接口名  <-- 关键
+    auto add = [&](const std::string &suffix, double *ptr) {
+      si.emplace_back("mpu6050", suffix, ptr);
+    };
+
+    add("orientation.w", &orientation_[0]);
+    add("orientation.x", &orientation_[1]);
+    add("orientation.y", &orientation_[2]);
+    add("orientation.z", &orientation_[3]);
+    add("angular_velocity.x", &angular_velocity_[0]);
+    add("angular_velocity.y", &angular_velocity_[1]);
+    add("angular_velocity.z", &angular_velocity_[2]);
+    add("linear_acceleration.x", &ax_);
+    add("linear_acceleration.y", &ay_);
+    add("linear_acceleration.z", &az_);
     return si;
   }
 

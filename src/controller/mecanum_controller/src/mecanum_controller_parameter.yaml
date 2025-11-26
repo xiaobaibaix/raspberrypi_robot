@@ -183,6 +183,87 @@ mecanum_controller:
           "mecanum_controller::lt_eq_or_nan<>": [0.0]
         }
       }
+    y:
+      has_velocity_limits: {
+        type: bool,
+        default_value: true,
+        description: "deprecated, set the respective limits to ``.NAN`` for deactivation"
+      }
+      has_acceleration_limits: {
+        type: bool,
+        default_value: true,
+        description: "deprecated, set the respective limits to ``.NAN`` for deactivation"
+      }
+      has_jerk_limits: {
+        type: bool,
+        default_value: true,
+        description: "deprecated, set the respective limits to ``.NAN`` for deactivation"
+      }
+      max_velocity: {
+        type: double,
+        default_value: .NAN,
+        validation: {
+          "mecanum_controller::gt_eq_or_nan<>": [0.0]
+        }
+      }
+      min_velocity: {
+        type: double,
+        default_value: .NAN,
+        validation: {
+          "mecanum_controller::lt_eq_or_nan<>": [0.0]
+        }
+      }
+      max_acceleration: {
+        type: double,
+        default_value: .NAN,
+        description: "Maximum acceleration in forward direction.",
+        validation: {
+          "mecanum_controller::gt_eq_or_nan<>": [0.0]
+        }
+      }
+      max_deceleration: {
+        type: double,
+        default_value: .NAN,
+        description: "Maximum deceleration in forward direction.",
+        validation: {
+          "mecanum_controller::lt_eq_or_nan<>": [0.0]
+        }
+      }
+      min_acceleration: {
+        type: double,
+        default_value: .NAN,
+        description: "deprecated, use max_deceleration"
+      }
+      max_acceleration_reverse: {
+        type: double,
+        default_value: .NAN,
+        description: "Maximum acceleration in reverse direction. If not set, -max_acceleration will be used.",
+        validation: {
+          "mecanum_controller::lt_eq_or_nan<>": [0.0]
+        }
+      }
+      max_deceleration_reverse: {
+        type: double,
+        default_value: .NAN,
+        description: "Maximum deceleration in reverse direction. If not set, -max_deceleration will be used.",
+        validation: {
+          "mecanum_controller::gt_eq_or_nan<>": [0.0]
+        }
+      }
+      max_jerk: {
+        type: double,
+        default_value: .NAN,
+        validation: {
+          "mecanum_controller::gt_eq_or_nan<>": [0.0]
+        }
+      }
+      min_jerk: {
+        type: double,
+        default_value: .NAN,
+        validation: {
+          "mecanum_controller::lt_eq_or_nan<>": [0.0]
+        }
+      }
   angular:
     z:
       has_velocity_limits: {

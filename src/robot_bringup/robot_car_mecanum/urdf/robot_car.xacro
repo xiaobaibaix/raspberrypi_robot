@@ -6,6 +6,8 @@
   <ros2_control name="mecanum_wheels_chassis" type="system">
     <hardware>
       <plugin>mecanum_wheel_chassis_hw/MecanumWheelChassisHW</plugin>
+      <!-- <plugin>mock_components/GenericSystem</plugin>
+      <param name="calculate_dynamics">true</param> -->
     </hardware>
 
     <joint name="left_front_wheel_joint">

@@ -164,6 +164,12 @@ controller_interface::return_type MecanumController::update(
       odometry_.update(
         wheel_feedback_means[0], wheel_feedback_means[1],
         wheel_feedback_means[2], wheel_feedback_means[3], time);
+
+      // RCLCPP_INFO(logger, "position feedback:(%f,%f,%f,%f) ",
+      //   wheel_feedback_means[0], 
+      //   wheel_feedback_means[1], 
+      //   wheel_feedback_means[2], 
+      //   wheel_feedback_means[3]);
     }
     else
     {
@@ -231,6 +237,11 @@ controller_interface::return_type MecanumController::update(
   limiter_linear_x_->limit(
     linear_x_command, last_command.linear.x,
     second_to_last_command.linear.x, period.seconds());
+
+  limiter_linear_y_->limit(
+    linear_y_command, last_command.linear.y,
+    second_to_last_command.linear.y, period.seconds());
+
   limiter_angular_->limit(
     angular_command, last_command.angular.z,
     second_to_last_command.angular.z, period.seconds());
@@ -296,6 +307,12 @@ controller_interface::CallbackReturn MecanumController::on_configure(
     params_.linear.x.max_acceleration_reverse, params_.linear.x.max_acceleration,
     params_.linear.x.max_deceleration, params_.linear.x.max_deceleration_reverse,
     params_.linear.x.min_jerk, params_.linear.x.max_jerk);
+
+  limiter_linear_y_ = std::make_unique<SpeedLimiter>(
+    params_.linear.y.min_velocity, params_.linear.y.max_velocity,
+    params_.linear.y.max_acceleration_reverse, params_.linear.y.max_acceleration,
+    params_.linear.y.max_deceleration, params_.linear.y.max_deceleration_reverse,
+    params_.linear.y.min_jerk, params_.linear.y.max_jerk);
 
   limiter_angular_ = std::make_unique<SpeedLimiter>(
     params_.angular.z.min_velocity, params_.angular.z.max_velocity,
@@ -402,7 +419,8 @@ controller_interface::CallbackReturn MecanumController::on_configure(
   realtime_odometry_transform_publisher_ =
     std::make_shared<realtime_tools::RealtimePublisher<tf2_msgs::msg::TFMessage>>(
       odometry_transform_publisher_);
-
+  auto & tf_msg = realtime_odometry_transform_publisher_->msg_;
+  tf_msg.transforms.resize(1);
   auto & odom_tf = realtime_odometry_transform_publisher_->msg_.transforms.front();
   odom_tf.header.frame_id = odom_frame_id;
   odom_tf.child_frame_id  = base_frame_id;

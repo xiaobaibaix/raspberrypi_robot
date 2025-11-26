@@ -111,11 +111,9 @@ namespace mecanum_wheel_chassis_hw
                 robot_msgs::msg::MotorState().set__id(1).set__rps(
                     abs(hw_commands_[0]*50)>200?(200* (hw_commands_[0]>0?1:-1)):hw_commands_[0]*50),
                 robot_msgs::msg::MotorState().set__id(2).set__rps(-1*(
-                    abs(hw_commands_[1]*50)>200?(200* (hw_commands_[1]>0?1:-1)):hw_commands_[1]*50
-                )),
+                    abs(hw_commands_[1]*50)>200?(200* (hw_commands_[1]>0?1:-1)):hw_commands_[1]*50)),
                 robot_msgs::msg::MotorState().set__id(3).set__rps(-1*(
-                    abs(hw_commands_[2]*50)>200?(200* (hw_commands_[2]>0?1:-1)):hw_commands_[2]*50
-                )),
+                    abs(hw_commands_[2]*50)>200?(200* (hw_commands_[2]>0?1:-1)):hw_commands_[2]*50)),
                 robot_msgs::msg::MotorState().set__id(4).set__rps(
                     abs(hw_commands_[3]*50)>200?(200* (hw_commands_[3]>0?1:-1)):hw_commands_[3]*50),
             })
