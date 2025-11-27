@@ -15,10 +15,10 @@ class MotorLoop(Node):
     def timer_callback(self):
         msg = MotorsState()
         msg.data = [
-            MotorState(id=1, rps=random.randint(-120, 120)),
-            MotorState(id=2, rps=random.randint(-120, 120)),
-            MotorState(id=3, rps=random.randint(-120, 120)),
-            MotorState(id=4, rps=random.randint(-120, 120))
+            MotorState(id=1, rps=random.uniform(-120, 120)),
+            MotorState(id=2, rps=random.uniform(-120, 120)),
+            MotorState(id=3, rps=random.uniform(-120, 120)),
+            MotorState(id=4, rps=random.uniform(-120, 120))
         ]
         self.pub.publish(msg)
         self.get_logger().info(f'Published: {[m.rps for m in msg.data]}')

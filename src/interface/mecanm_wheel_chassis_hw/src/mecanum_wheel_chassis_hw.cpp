@@ -109,13 +109,13 @@ namespace mecanum_wheel_chassis_hw
         state_pub_->publish(robot_msgs::msg::MotorsState(
             robot_msgs::msg::MotorsState().set__data({
                 robot_msgs::msg::MotorState().set__id(1).set__rps(
-                    abs(hw_commands_[0]*50)>200?(200* (hw_commands_[0]>0?1:-1)):hw_commands_[0]*50),
+                    abs(hw_commands_[0]*10)>100?(100* (hw_commands_[0]>0?1:-1)):hw_commands_[0]*10),
                 robot_msgs::msg::MotorState().set__id(2).set__rps(-1*(
-                    abs(hw_commands_[1]*50)>200?(200* (hw_commands_[1]>0?1:-1)):hw_commands_[1]*50)),
+                    abs(hw_commands_[1]*10)>100?(100* (hw_commands_[1]>0?-1:1)):hw_commands_[1]*10)),
                 robot_msgs::msg::MotorState().set__id(3).set__rps(-1*(
-                    abs(hw_commands_[2]*50)>200?(200* (hw_commands_[2]>0?1:-1)):hw_commands_[2]*50)),
+                    abs(hw_commands_[2]*10)>100?(100* (hw_commands_[2]>0?-1:1)):hw_commands_[2]*10)),
                 robot_msgs::msg::MotorState().set__id(4).set__rps(
-                    abs(hw_commands_[3]*50)>200?(200* (hw_commands_[3]>0?1:-1)):hw_commands_[3]*50),
+                    abs(hw_commands_[3]*10)>100?(100* (hw_commands_[3]>0?1:-1)):hw_commands_[3]*10),
             })
         ));
 

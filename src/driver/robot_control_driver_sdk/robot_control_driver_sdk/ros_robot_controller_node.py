@@ -29,7 +29,7 @@ class RosRobotController(Node):
         rclpy.init()
         super().__init__(name)
 
-        self.board = Board()
+        self.board = Board(device="/dev/ttyUSB0", baudrate=115200, timeout=1.0)
         self.board.enable_reception()
 
         self.running = True
