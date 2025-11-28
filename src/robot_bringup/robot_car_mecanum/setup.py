@@ -15,6 +15,7 @@ setup(
         ('share/' + package_name+'/config', glob("config/*.rviz")),
         ('share/' + package_name+'/launch', glob("launch/*.py")),
         ('share/' + package_name+'/urdf', glob("urdf/*.xacro")),
+        ('share/' + package_name+'/maps', glob("maps/*.yaml")),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -34,6 +35,7 @@ setup(
             "send_motor_node=robot_car_mecanum.send_motor_node:main",
             "muc_publisher=robot_car_mecanum.muc_publisher:main",
             "key_control=robot_car_mecanum.key_control:main",
+            "key_control_motor=robot_car_mecanum.send_motor_node_key:main",
         ],
     },
 )

@@ -1,163 +1,130 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<robot name="four_wheel_chassis" xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <!-- ###############################
-       属性（常量）定义
-  ############################### -->
+<robot name="four_wheel_chassis"
+       xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <!-- 数学常量 -->
-  <xacro:property name="PI" value="3.1415926535897931" />
+  <!-- ========================= 属性常量 ========================= -->
+  <xacro:property name="PI" value="3.1415926535897931"/>
 
-  <!-- 底盘几何属性 -->
-  <xacro:property name="base_length" value="0.4" />  <!-- 底盘长度 (X方向) -->
-  <xacro:property name="base_width" value="0.3" />   <!-- 底盘宽度 (Y方向) -->
-  <xacro:property name="base_height" value="0.1" />  <!-- 底盘高度 (Z方向) -->
-  <xacro:property name="base_mass" value="2.0" />    <!-- 底盘质量 (kg) -->
+  <xacro:property name="base_length"  value="0.26"/>
+  <xacro:property name="base_width"   value="0.16"/>
+  <xacro:property name="base_height"  value="0.04"/>
+  <xacro:property name="base_mass"    value="2.0"/>
 
-  <!-- 车轮几何属性 -->
-  <xacro:property name="wheel_radius" value="0.05" /> <!-- 车轮半径 -->
-  <xacro:property name="wheel_length" value="0.03" />  <!-- 车轮厚度 -->
-  <xacro:property name="wheel_mass" value="0.5" />    <!-- 车轮质量 (kg) -->
+  <xacro:property name="wheel_radius" value="0.03"/>
+  <xacro:property name="wheel_length" value="0.03"/>
+  <xacro:property name="wheel_mass"   value="0.5"/>
 
-  <!-- 车轮安装位置 (相对于底盘中心) -->
-  <xacro:property name="wheel_x" value="${base_length/2 - 0.05}" /> <!-- 距离中心的X方向偏移 -->
-  <xacro:property name="wheel_y" value="${base_width/2}" />        <!-- 距离中心的Y方向偏移 -->
-  <xacro:property name="wheel_z" value="-${base_height/2}" />       <!-- Z方向安装高度 -->
+  <xacro:property name="wheel_x" value="0.09"/>
+  <xacro:property name="wheel_y" value="0.11"/>
+  <xacro:property name="wheel_z" value="0.02"/>
 
-  <!-- 颜色定义 -->
-  <xacro:property name="base_color" value="0 0.2 0.8 0.5" /> <!-- 底盘颜色 (蓝色) -->
-  <xacro:property name="wheel_color" value="0 0 0 1.0" />     <!-- 车轮颜色 (黑色) -->
+  <!-- 颜色 -->
+  <xacro:property name="base_color" value="0 0.2 0.8 0.5"/>
+  <xacro:property name="wheel_color" value="0 0 0 1"/>
+  <material name="blue"><color rgba="${base_color}"/></material>
+  <material name="black"><color rgba="${wheel_color}"/></material>
+  <material name="red"><color rgba="0.5 0 0 1"/></material>
+  <material name="gray"><color rgba="0.5 0.5 0.5 1"/></material>
 
-  <!-- ###############################
-       宏定义
-  ############################### -->
-
-  <!-- 定义惯性矩的宏，简化惯性参数设置 -->
-  <xacro:macro name="default_inertial" params="mass">
+  <!-- ========================= 惯性宏 ========================= -->
+  <xacro:macro name="box_inertia" params="mass x y z">
     <inertial>
-      <mass value="${mass}" />
-      <inertia ixx="1.0" ixy="0.0" ixz="0.0"
-               iyy="1.0" iyz="0.0"
-               izz="1.0" />
+      <mass value="${mass}"/>
+      <inertia ixx="${mass*(y*y+z*z)/12}" ixy="0.0" ixz="0.0"
+               iyy="${mass*(x*x+z*z)/12}" iyz="0.0"
+               izz="${mass*(x*x+y*y)/12}"/>
     </inertial>
   </xacro:macro>
 
-  <!-- 定义车轮的宏 -->
-  <!-- 参数说明:
-       name: 车轮的唯一标识 (如 left_front, right_rear)
-       xyz: 车轮的安装位置 (相对于父连杆)
-       rpy: 车轮的安装朝向 (默认为0, 使用cylinder默认朝向需要绕X轴旋转90度)
-  -->
+  <xacro:macro name="cyl_inertia" params="mass r h">
+    <inertial>
+      <mass value="${mass}"/>
+      <inertia ixx="${mass*(3*r*r+h*h)/12}" ixy="0.0" ixz="0.0"
+               iyy="${mass*(3*r*r+h*h)/12}" iyz="0.0"
+               izz="${mass*r*r/2}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- ========================= 车轮宏 ========================= -->
   <xacro:macro name="create_wheel" params="name xyz rpy:='0 0 0'">
     <link name="${name}_wheel">
       <visual>
-        <geometry>
-          <cylinder radius="${wheel_radius}" length="${wheel_length}" />
-        </geometry>
-        <origin xyz="0 0 0" rpy="${PI/2} 0 0" /> <!-- 旋转cylinder使其Z轴朝前 -->
-        <material name="black">
-          <color rgba="${wheel_color}" />
-        </material>
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_length}"/></geometry>
+        <origin xyz="0 0 0" rpy="${PI/2} 0 0"/>
+        <material name="black"/>
       </visual>
       <collision>
-        <geometry>
-          <cylinder radius="${wheel_radius}" length="${wheel_length}" />
-        </geometry>
-        <origin xyz="0 0 0" rpy="${PI/2} 0 0" />
+        <geometry><cylinder radius="${wheel_radius}" length="${wheel_length}"/></geometry>
+        <origin xyz="0 0 0" rpy="${PI/2} 0 0"/>
       </collision>
-      <xacro:default_inertial mass="${wheel_mass}" />
+      <xacro:cyl_inertia mass="${wheel_mass}" r="${wheel_radius}" h="${wheel_length}"/>
     </link>
 
     <joint name="${name}_wheel_joint" type="continuous">
-      <parent link="base_link" />
-      <child link="${name}_wheel" />
-      <origin xyz="${xyz}" rpy="${rpy}" />
-      <axis xyz="0 1 0" /> <!-- 旋转轴为Y轴，适用于差速驱动 -->
+      <parent link="base_link"/>
+      <child link="${name}_wheel"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+      <axis xyz="0 1 0"/>
     </joint>
   </xacro:macro>
 
-  <!-- ###############################
-       机器人模型主体
-  ############################### -->
-
+  <!-- ========================= 主体 ========================= -->
   <link name="base_footprint"/>
-
   <joint name="base_to_footprint" type="fixed">
-    <parent link="base_footprint" />
-    <child link="base_link" />
-    <origin xyz="0 0 ${base_height}" rpy="0 0 0" />
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0.0 0.0 0.04" rpy="0.0 0.0 0.0"/>
   </joint>
 
-  <!-- 机器人底盘主体 -->
   <link name="base_link">
     <visual>
-      <geometry>
-        <box size="${base_length} ${base_width} ${base_height}" />
-      </geometry>
-      <material name="blue">
-        <color rgba="${base_color}" />
-      </material>
+      <geometry><box size="${base_length} ${base_width} ${base_height}"/></geometry>
+      <material name="blue"/>
     </visual>
     <collision>
-      <geometry>
-        <box size="${base_length} ${base_width} ${base_height}" />
-      </geometry>
+      <geometry><box size="${base_length} ${base_width} ${base_height}"/></geometry>
     </collision>
-    <xacro:default_inertial mass="${base_mass}" />
+    <xacro:box_inertia mass="${base_mass}" x="${base_length}" y="${base_width}" z="${base_height}"/>
   </link>
 
+  <!-- 四麦轮 -->
+  <xacro:create_wheel name="left_front"  xyz="${wheel_x}  ${wheel_y} -${wheel_z/2}"/>
+  <xacro:create_wheel name="right_front" xyz="${wheel_x} -${wheel_y} -${wheel_z/2}"/>
+  <xacro:create_wheel name="left_rear"   xyz="-${wheel_x}  ${wheel_y} -${wheel_z/2}"/>
+  <xacro:create_wheel name="right_rear"  xyz="-${wheel_x} -${wheel_y} -${wheel_z/2}"/>
 
-
-  <!-- 使用宏创建四个车轮 -->
-  <xacro:create_wheel name="left_front" xyz="${wheel_x} ${wheel_y} ${wheel_z}" />
-  <xacro:create_wheel name="right_front" xyz="${wheel_x} -${wheel_y} ${wheel_z}" />
-  <xacro:create_wheel name="left_rear" xyz="-${wheel_x} ${wheel_y} ${wheel_z}" />
-  <xacro:create_wheel name="right_rear" xyz="-${wheel_x} -${wheel_y} ${wheel_z}" />
-
+  <!-- 激光 -->
   <link name="laser_frame">
     <visual>
-      <geometry>
-        <cylinder radius="0.05" length="0.05" />
-      </geometry>
-      <origin xyz="0 0 0.025" rpy="0 0 0" />
-      <material name="red">
-        <color rgba="0.5 0 0 1.0" />
-      </material>
+      <geometry><cylinder radius="0.03" length="0.04"/></geometry>
+      <material name="red"/>
     </visual>
     <collision>
-      <geometry>
-        <cylinder radius="0.05" length="0.05" />
-      </geometry>
-      <origin xyz="0 0 0.025" rpy="0 0 0" />
+      <geometry><cylinder radius="0.03" length="0.04"/></geometry>
     </collision>
-    <xacro:default_inertial mass="0.1" />
+    <xacro:cyl_inertia mass="0.1" r="0.03" h="0.04"/>
   </link>
-
   <joint name="laser_joint" type="fixed">
-    <parent link="base_link" />
-    <child link="laser_frame" />
-    <origin xyz="0 0 0.05" rpy="0 0 0" />
+    <parent link="base_link"/>
+    <child link="laser_frame"/>
+    <origin xyz="0 0 0.05" rpy="0 0 0"/>
   </joint>
 
+  <!-- IMU -->
   <link name="imu_link">
     <visual>
-      <geometry>
-        <box size="0.02 0.02 0.02"/>
-      </geometry>
-      <material name="gray">
-        <color rgba="0.5 0.5 0.5 1.0"/>
-      </material>
+      <geometry><box size="0.02 0.02 0.001"/></geometry>
+      <material name="gray"/>
     </visual>
     <collision>
-      <geometry>
-        <box size="0.02 0.02 0.02"/>
-      </geometry>
+      <geometry><box size="0.02 0.02 0.001"/></geometry>
     </collision>
+    <xacro:box_inertia mass="0.02" x="0.02" y="0.02" z="0.001"/>
   </link>
-
   <joint name="imu_joint" type="fixed">
     <parent link="base_link"/>
     <child link="imu_link"/>
-    <origin xyz="0.1 0.0 0.05" rpy="0 0 0"/>
+    <origin xyz="0.045 0.06 0.025" rpy="0 0 0"/>
   </joint>
-  
+
 </robot>

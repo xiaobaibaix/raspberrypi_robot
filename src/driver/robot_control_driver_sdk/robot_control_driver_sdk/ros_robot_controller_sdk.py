@@ -105,6 +105,7 @@ class Board:
         self.port.dtr = False
         self.port.setPort(device)
         self.port.open()
+        time.sleep(1.0)
 
         self.state = PacketControllerState.PACKET_CONTROLLER_STATE_STARTBYTE1
         self.servo_read_lock = threading.Lock()
@@ -129,7 +130,7 @@ class Board:
             PacketFunction.PACKET_FUNC_PWM_SERVO: self.packet_report_pwm_servo
         }
 
-        time.sleep(0.5)
+        time.sleep(1.0)
         threading.Thread(target=self.recv_task, daemon=True).start()
 
 

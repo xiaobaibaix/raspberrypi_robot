@@ -25,7 +25,6 @@ setup(
     entry_points={
         'console_scripts': [
             'ros_robot_controller_node=robot_control_driver_sdk.ros_robot_controller_node:main',
-            "send_motor_node=robot_control_driver_sdk.send_motor_node:main"
         ],
     },
 )

@@ -34,6 +34,7 @@ ros2 node list 2>/dev/null | xargs -I {} ros2 node kill {} 2>/dev/null
 pkill -9 -f "gz sim"
 pkill -9 -f "gazebo"
 pkill -9 -f "ruby"
+
 pkill -9 -f "slam_toolbox"
 pkill -9 -f "rviz2"
 
