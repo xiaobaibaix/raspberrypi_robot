@@ -6,7 +6,7 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     # 定位功能包
-    pkg_share = FindPackageShare(package='SlamCartographer').find('SlamCartographer')
+    pkg_share = FindPackageShare(package='slam_cartographer').find('slam_cartographer')
     
     #配置节点启动信息
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
