@@ -5,10 +5,10 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    controller_yaml = os.path.join(get_package_share_directory('path_planner_server'), 'config', 'controller.yaml')
-    bt_navigator_yaml = os.path.join(get_package_share_directory('path_planner_server'), 'config', 'bt_navigator.yaml')
-    planner_yaml = os.path.join(get_package_share_directory('path_planner_server'), 'config', 'planner_server.yaml')
-    recovery_yaml = os.path.join(get_package_share_directory('path_planner_server'), 'config', 'recovery.yaml')
+    controller_yaml = os.path.join(get_package_share_directory('navigation'), 'config', 'controllers.yaml')
+    bt_navigator_yaml = os.path.join(get_package_share_directory('navigation'), 'config', 'bt_navigator.yaml')
+    planner_yaml = os.path.join(get_package_share_directory('navigation'), 'config', 'planner_server.yaml')
+    recovery_yaml = os.path.join(get_package_share_directory('navigation'), 'config', 'recovery.yaml')
 
     
     return LaunchDescription([     
@@ -27,9 +27,9 @@ def generate_launch_description():
             parameters=[planner_yaml]),
             
         Node(
-            package='nav2_recoveries',
-            executable='recoveries_server',
-            name='recoveries_server',
+            package='nav2_behaviors',
+            executable='behavior_server',
+            name='behavior_server',
             parameters=[recovery_yaml],
             output='screen'),
 
@@ -48,6 +48,6 @@ def generate_launch_description():
             parameters=[{'autostart': True},
                         {'node_names': ['planner_server',
                                         'controller_server',
-                                        'recoveries_server',
+                                        'behavior_server',
                                         'bt_navigator']}])
     ])

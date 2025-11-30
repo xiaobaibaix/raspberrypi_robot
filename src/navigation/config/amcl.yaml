@@ -26,7 +26,7 @@ amcl:
     recovery_alpha_fast: 0.0
     recovery_alpha_slow: 0.0
     resample_interval: 1
-    robot_model_type: "differential"    # differential小车或者 omnidirectional 小车
+    robot_model_type: "nav2_amcl::OmniMotionModel"    # differential小车或者 omnidirectional 小车
     save_pose_rate: 0.5
     sigma_hit: 0.2
     tf_broadcast: true
@@ -42,4 +42,3 @@ amcl:
         x: -4.44264
         y: 2.32243
         yaw: 0.328028
-   
