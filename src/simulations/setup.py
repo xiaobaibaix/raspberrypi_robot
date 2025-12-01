@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'simulation'
+package_name = 'simulations'
 
 setup(
     name=package_name,
