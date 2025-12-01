@@ -111,9 +111,9 @@ namespace mecanum_wheel_chassis_hw
                 robot_msgs::msg::MotorState().set__id(1).set__rps(
                     abs(hw_commands_[0]*10)>100?(100.0* (hw_commands_[0]>0?-1:1)):-hw_commands_[0]*10),
                 robot_msgs::msg::MotorState().set__id(2).set__rps(
-                    abs(hw_commands_[1]*10)>100?(100.0* (hw_commands_[1]>0?-1:1)):-hw_commands_[1]*10),
+                    abs(hw_commands_[1]*10)>100?(100.0* (hw_commands_[1]>0?1:-1)):hw_commands_[1]*10),
                 robot_msgs::msg::MotorState().set__id(3).set__rps(
-                    abs(hw_commands_[2]*10)>100?(100.0* (hw_commands_[2]>0?-1:1)):-hw_commands_[2]*10),
+                    abs(hw_commands_[2]*10)>100?(100.0* (hw_commands_[2]>0?1:-1)):hw_commands_[2]*10),
                 robot_msgs::msg::MotorState().set__id(4).set__rps(
                     abs(hw_commands_[3]*10)>100?(100.0* (hw_commands_[3]>0?-1:1)):-hw_commands_[3]*10),
             })
@@ -125,16 +125,27 @@ namespace mecanum_wheel_chassis_hw
         hw_velocities_[2]= hw_commands_[2];
         hw_velocities_[3]= hw_commands_[3];
 
-        hw_positions_[0]  += hw_velocities_[0] * period.seconds();
-        hw_positions_[1]  += hw_velocities_[1] * period.seconds();
-        hw_positions_[2]  += hw_velocities_[2] * period.seconds();
-        hw_positions_[3]  += hw_velocities_[3] * period.seconds();
 
-        RCLCPP_INFO(node_logging_->get_logger(), "%.4f,%.4f,%.4f,%.4f",
-            hw_commands_[0],
-            hw_commands_[1],
-            hw_commands_[2],
-            hw_commands_[3]);
+
+        if((hw_velocities_[0]>0&&hw_velocities_[1]>0&&hw_velocities_[2]>0&&hw_velocities_[3]>0)
+        ||(hw_velocities_[0]<0&&hw_velocities_[1]<0&&hw_velocities_[2]<0&&hw_velocities_[3]<0)){
+            hw_positions_[0]  += hw_velocities_[0] * period.seconds();
+            hw_positions_[1]  += hw_velocities_[1] * period.seconds();
+            hw_positions_[2]  += hw_velocities_[2] * period.seconds();
+            hw_positions_[3]  += hw_velocities_[3] * period.seconds();
+        }else{
+            hw_positions_[0]  += hw_velocities_[0] * period.seconds();
+            hw_positions_[1]  += hw_velocities_[1] * period.seconds();
+            hw_positions_[2]  += -hw_velocities_[2] * period.seconds();
+            hw_positions_[3]  += -hw_velocities_[3] * period.seconds();
+        }
+
+
+        // RCLCPP_INFO(node_logging_->get_logger(), "%.4f,%.4f,%.4f,%.4f",
+        //     hw_commands_[0],
+        //     hw_commands_[1],
+        //     hw_commands_[2],
+        //     hw_commands_[3]);
 
         return hardware_interface::return_type::OK;
     }

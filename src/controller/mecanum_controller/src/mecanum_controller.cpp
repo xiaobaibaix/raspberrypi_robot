@@ -164,12 +164,6 @@ controller_interface::return_type MecanumController::update(
       odometry_.update(
         wheel_feedback_means[0], wheel_feedback_means[1],
         wheel_feedback_means[2], wheel_feedback_means[3], time);
-
-      // RCLCPP_INFO(logger, "position feedback:(%f,%f,%f,%f) ",
-      //   wheel_feedback_means[0], 
-      //   wheel_feedback_means[1], 
-      //   wheel_feedback_means[2], 
-      //   wheel_feedback_means[3]);
     }
     else
     {

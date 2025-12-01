@@ -20,7 +20,7 @@ mecanum_controller:
     wheel_separation_y: 0.3
     wheel_radius: 0.05
 
-    enable_odom_tf: true
+    enable_odom_tf: false
     odom_frame_id: odom
     base_frame_id: base_footprint
 
@@ -30,7 +30,7 @@ mecanum_controller:
     twist_covariance_diagonal: [0.0, 7.0, 14.0, 21.0, 28.0, 35.0]
     pose_covariance_diagonal: [0.0, 6.0, 12.0, 18.0, 24.0, 30.0]
 
-    cmd_vel_timeout: 0.5 # seconds
+    cmd_vel_timeout: 0.2 # seconds
     publish_limited_velocity: true
     linear:
       x:
@@ -64,7 +64,7 @@ mecanum_controller:
 imu_sensor_broadcaster:
   ros__parameters:
     sensor_name: "mpu6050"   # 与 URDF <joint name=""> 一致
-    frame_id: "imuData"       # 你的 TF 帧 ID
+    frame_id: "imu"       # 你的 TF 帧 ID
     
     orientation_covariance: [0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001]
     angular_velocity_covariance: [0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001]

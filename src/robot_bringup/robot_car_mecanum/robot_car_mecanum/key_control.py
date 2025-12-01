@@ -22,7 +22,7 @@ class MecanumKeyboardControl(Node):
         
         # 麦轮控制参数
         self.linear_speed = 0.5   # m/s
-        self.angular_speed = 0.5  # rad/s
+        self.angular_speed = 1.0  # rad/s
         self.strafe_speed = 0.5   # m/s 横向移动速度
         
         self.settings = termios.tcgetattr(sys.stdin)
