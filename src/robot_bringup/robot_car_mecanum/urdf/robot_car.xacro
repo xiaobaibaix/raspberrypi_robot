@@ -35,7 +35,7 @@
     </joint>
   </ros2_control>
 
-  <ros2_control name="IMU" type="sensor">
+  <ros2_control name="IMUSystem" type="sensor">
     <hardware>
       <plugin>mpu6050_hw/MPU6050HW</plugin>
       <param name="i2c_file_name">/dev/i2c-1</param>

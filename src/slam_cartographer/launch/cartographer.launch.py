@@ -27,7 +27,8 @@ def generate_launch_description():
         output='screen',
         parameters=[{'use_sim_time': use_sim_time}],
         arguments=['-configuration_directory', configuration_directory,
-                   '-configuration_basename', configuration_basename])
+                   '-configuration_basename', configuration_basename],
+        remappings = [('odom', '/odometry/filtered')])
 
     cartographer_occupancy_grid_node = Node(
         package='cartographer_ros',
