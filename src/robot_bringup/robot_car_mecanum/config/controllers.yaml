@@ -63,7 +63,7 @@ mecanum_controller:
 
 imu_sensor_broadcaster:
   ros__parameters:
-    sensor_name: "mpu6050"   # 与 URDF <joint name=""> 一致
+    sensor_name: "mpu6050"    # 与 URDF <joint name=""> 一致
     frame_id: "imu"       # 你的 TF 帧 ID
     
     orientation_covariance: [0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001]

@@ -1,8 +1,6 @@
-<!--
-  This Behavior Tree replans the global path periodically at 1 Hz, and has
-  recovery actions. Obtained from the official Nav2 package
--->
-<root main_tree_to_execute="MainTree">
+<!-- navigate_w_replanning_and_recovery.xml -->
+<!--  BehaviorTree.CPP 4.x 兼容版 -->
+<root BTCPP_format="4" main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
     <RecoveryNode number_of_retries="6" name="NavigateRecovery">
       <PipelineSequence name="NavigateWithReplanning">
@@ -12,17 +10,20 @@
             <ClearEntireCostmap service_name="global_costmap/clear_entirely_global_costmap"/>
           </RecoveryNode>
         </RateController>
+
         <RecoveryNode number_of_retries="1" name="FollowPath">
           <FollowPath path="{path}" controller_id="FollowPath"/>
           <ClearEntireCostmap service_name="local_costmap/clear_entirely_local_costmap"/>
         </RecoveryNode>
       </PipelineSequence>
-      <SequenceStar name="RecoveryActions">
+
+      <!-- 4.x 把 SequenceStar 合并到 Sequence，success_threshold="-1" 等价于原 STAR 模式 -->
+      <Sequence name="RecoveryActions" success_threshold="-1">
         <ClearEntireCostmap service_name="local_costmap/clear_entirely_local_costmap"/>
         <ClearEntireCostmap service_name="global_costmap/clear_entirely_global_costmap"/>
         <Spin spin_dist="1.57"/>
         <Wait wait_duration="5"/>
-      </SequenceStar>
+      </Sequence>
     </RecoveryNode>
   </BehaviorTree>
 </root>
