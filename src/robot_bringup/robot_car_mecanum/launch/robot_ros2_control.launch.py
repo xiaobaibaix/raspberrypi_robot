@@ -30,8 +30,12 @@ def generate_launch_description():
     controller_manager = Node(
         package='controller_manager',
         executable='ros2_control_node',
-        parameters=[os.path.join(pkg, 'config', 'controllers.yaml')],
-        output='both'
+        parameters=[
+            os.path.join(pkg, 'config', 'controllers.yaml'),
+            {'use_realtime': False},   # 关闭实时调度
+            {'lock_memory': False},    # 关闭内存锁定
+        ],
+        output='both',
     )
     ld.add_action(controller_manager)
 

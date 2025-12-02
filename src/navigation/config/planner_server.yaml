@@ -13,6 +13,7 @@ planner_server:
 global_costmap:
   global_costmap:
     ros__parameters:
+      transform_tolerance: 30.0
       update_frequency: 1.0
       publish_frequency: 1.0
       global_frame: map
@@ -50,6 +51,7 @@ global_costmap:
 local_costmap:
   local_costmap:
     ros__parameters:
+      transform_tolerance: 30.0
       update_frequency: 4.0      # 与控制器同步 4 Hz
       publish_frequency: 4.0
       global_frame: odom
