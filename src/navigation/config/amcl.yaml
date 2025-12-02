@@ -1,6 +1,6 @@
 amcl:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: false
     alpha1: 0.2              # 机器人运动的旋转分量对里程测量旋转估算值产生的预期噪声
     alpha2: 0.2
     alpha3: 0.2

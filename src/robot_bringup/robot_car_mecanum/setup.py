@@ -30,12 +30,9 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'test_car_publisher=robot_car_mecanum.test_car_publisher:main',
-            'odom_publisher=robot_car_mecanum.odom_publisher_node:main',
-            "send_motor_node=robot_car_mecanum.send_motor_node:main",
-            "muc_publisher=robot_car_mecanum.muc_publisher:main",
             "key_control=robot_car_mecanum.key_control:main",
-            "key_control_motor=robot_car_mecanum.send_motor_node_key:main",
+            "send_motor_node=robot_car_mecanum.send_motor_node:main",
+            "send_motor_node_key=robot_car_mecanum.send_motor_node_key:main",
         ],
     },
 )

@@ -90,9 +90,10 @@ ESC/q - 退出
                         break
                     
                     self.publisher_.publish(twist_stamped)
-                    self.get_logger().info(f'控制命令: linear.x={twist_stamped.twist.linear.x:.2f}, '
-                                         f'linear.y={twist_stamped.twist.linear.y:.2f}, '
-                                         f'angular.z={twist_stamped.twist.angular.z:.2f}')
+                    self.get_logger().info( f'控制命令: '
+                                            f'linear.x={twist_stamped.twist.linear.x:.2f}, '
+                                            f'linear.y={twist_stamped.twist.linear.y:.2f}, '
+                                            f'angular.z={twist_stamped.twist.angular.z:.2f}')
         
         finally:
             # 退出时发送停止命令

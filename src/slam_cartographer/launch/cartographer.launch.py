@@ -9,7 +9,7 @@ def generate_launch_description():
     pkg_share = FindPackageShare(package='slam_cartographer').find('slam_cartographer')
     
     #配置节点启动信息
-    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
+    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
     # 地图的分辨率
     resolution = LaunchConfiguration('resolution', default='0.05')
     # 地图的发布周期

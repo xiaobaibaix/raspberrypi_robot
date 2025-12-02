@@ -18,19 +18,6 @@ import os
 def generate_launch_description():
     pkg = get_package_share_directory('robot_car_mecanum')
 
-    robot_state_publisher = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        parameters=[{
-            'robot_description': ParameterValue(
-                Command(['xacro ', os.path.join(pkg, 'urdf', 'robot_car.xacro'), ' use_gazebo:=false']),
-                value_type=str
-            ),
-            'use_sim_time': False
-        }],
-        output='both'
-    )
-
     rviz = Node(
         package='rviz2',
         executable='rviz2',
@@ -38,6 +25,5 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        robot_state_publisher,
         rviz,
     ])
