@@ -324,7 +324,7 @@ class Board:
         buf.extend(data)
         #buf.append(checksum_crc8(bytes(buf[2:])))
         buf = bytes(buf)
-        print(' '.join(f'{b:02X}' for b in buf))
+        # print(' '.join(f'{b:02X}' for b in buf),flush=True)
         self.port.write(buf)
 
 

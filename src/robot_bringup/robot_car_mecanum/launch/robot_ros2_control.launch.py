@@ -58,7 +58,13 @@ def generate_launch_description():
         arguments=['imu_sensor_broadcaster'],
         output='both'
         )
-
+    # laserspawner = Node(
+    #     package='controller_manager', 
+    #     executable='spawner', 
+    #     arguments=['laser_broadcaster'],
+    #     output='both'
+    #     )
+    
     ld.add_action(RegisterEventHandler(
         event_handler=OnProcessStart(
             target_action=controller_manager,
@@ -85,5 +91,14 @@ def generate_launch_description():
             ]
         )
     ))
+
+    # ld.add_action(RegisterEventHandler(
+    #     event_handler=OnProcessExit(
+    #         target_action=imuspawner,
+    #         on_exit=[
+    #             laserspawner
+    #         ]
+    #     )
+    # ))
 
     return ld

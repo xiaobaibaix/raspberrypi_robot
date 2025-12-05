@@ -16,7 +16,7 @@ class MecanumKeyboardControl(Node):
         # 发布TwistStamped消息
         self.publisher_ = self.create_publisher(
             Twist,  # 修改消息类型
-            '/mecanum_controller/cmd_vel', 
+            '/mecanum_controller/cmd_vel_unstamped',  # 修改话题名称
             10
         )
         

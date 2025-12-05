@@ -31,6 +31,7 @@ setup(
     entry_points={
         'console_scripts': [
             "key_control=robot_car_mecanum.key_control:main",
+            "key_control_notime=robot_car_mecanum.key_control_notime:main",
             "send_motor_node=robot_car_mecanum.send_motor_node:main",
             "send_motor_node_key=robot_car_mecanum.send_motor_node_key:main",
         ],

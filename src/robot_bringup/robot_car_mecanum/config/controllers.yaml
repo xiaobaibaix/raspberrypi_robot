@@ -7,6 +7,8 @@ controller_manager:
       type: mecanum_controller/MecanumController
     imu_sensor_broadcaster:
       type: imu_sensor_broadcaster/IMUSensorBroadcaster
+    # laser_broadcaster:
+    #   type: laser_broadcaster/LaserBroadcaster
       
 mecanum_controller:
   ros__parameters:
@@ -69,3 +71,9 @@ imu_sensor_broadcaster:
     orientation_covariance: [0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001]
     angular_velocity_covariance: [0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001]
     linear_acceleration_covariance: [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
+
+# laser_broadcaster:
+#   ros__parameters:
+#     sensor_name: "ydlidar"    # 与 URDF <joint name=""> 一致
+#     frame_id: "laser_frame"       # 你的 TF 帧 ID
+#     base_frame_id: "base_link"

@@ -42,3 +42,12 @@ amcl:
         x: -4.44264
         y: 2.32243
         yaw: 0.328028
+    # 地图坐标系下的初始估计
+    initial_pose.x: 0.0        # 单位 m
+    initial_pose.y: 0.0
+    initial_pose.z: 0.0
+    initial_pose.yaw: 0.0      # 车头朝向（rad）
+    # 置信度（标准差）
+    initial_pose.covariance_x: 0.5
+    initial_pose.covariance_y: 0.5
+    initial_pose.covariance_yaw: 0.3

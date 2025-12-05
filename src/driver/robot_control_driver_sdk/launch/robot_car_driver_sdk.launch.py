@@ -22,18 +22,6 @@ def generate_launch_description():
     ld = LaunchDescription()
 
     ld.add_action(
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                os.path.join(
-                    get_package_share_directory("ydlidar_ros2_driver"),
-                    'launch',
-                    'ydlidar_launch.py'
-                ),
-            ])
-        )
-    )
-
-    ld.add_action(
         Node(
             package='robot_control_driver_sdk',
             executable='ros_robot_controller_node',

@@ -162,7 +162,7 @@ int main(int argc, char *argv[]) {
   if (ret) {
     ret = laser.turnOn();
   } else {
-    RCLCPP_ERROR(node->get_logger(), "%s\n", laser.DescribeError());
+    RCLCPP_ERROR(node->get_logger(), "init %s\n", laser.DescribeError());
   }
   
   auto laser_pub = node->create_publisher<sensor_msgs::msg::LaserScan>("scan", rclcpp::QoS(10).reliable());

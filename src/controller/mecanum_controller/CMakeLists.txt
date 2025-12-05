@@ -54,35 +54,6 @@ target_link_libraries(mecanum_controller
     mecanum_controller_parameters)
 ament_target_dependencies(mecanum_controller PUBLIC ${THIS_PACKAGE_INCLUDE_DEPENDS})
 pluginlib_export_plugin_description_file(controller_interface mecanum_controller_plugin.xml)
-#if(BUILD_TESTING)
-#  find_package(ament_cmake_gmock REQUIRED)
-#  find_package(controller_manager REQUIRED)
-#  find_package(ros2_control_test_assets REQUIRED)
-#
-#  ament_add_gmock(test_mecanum_drive_controller
-#    test/test_mecanum_drive_controller.cpp
-#  )
-#  target_link_libraries(test_mecanum_drive_controller
-#    mecanum_drive_controller
-#  )
-#  ament_target_dependencies(test_mecanum_drive_controller
-#    geometry_msgs
-#    hardware_interface
-#    nav_msgs
-#    rclcpp
-#    rclcpp_lifecycle
-#    realtime_tools
-#    tf2
-#    tf2_msgs
-#  )
-#
-#  add_definitions(-DTEST_FILES_DIRECTORY="${CMAKE_CURRENT_SOURCE_DIR}/test")
-#  ament_add_gmock(test_load_mecanum_drive_controller test/test_load_mecanum_drive_controller.cpp)
-#  ament_target_dependencies(test_load_mecanum_drive_controller
-#    controller_manager
-#    ros2_control_test_assets
-#  )
-#endif()
 
 install(
   DIRECTORY include/
