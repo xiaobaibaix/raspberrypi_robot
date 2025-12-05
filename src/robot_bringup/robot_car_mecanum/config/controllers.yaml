@@ -56,7 +56,7 @@ mecanum_controller:
     open_loop: false
     position_feedback: true
 
-    use_stamped_vel: true
+    use_stamped_vel: false
 
     publish_rate: 4.0 # Hz
 

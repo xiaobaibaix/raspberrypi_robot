@@ -353,6 +353,16 @@ controller_interface::CallbackReturn MecanumController::on_configure(
         // FIX: new set() interface
         received_velocity_msg_ptr_.set(
           [&](auto & ptr) { ptr = std::move(msg); });
+
+        std::shared_ptr<TwistStamped> cmd;
+        received_velocity_msg_ptr_.get([&](const auto & ptr) { cmd = ptr; });
+
+        RCLCPP_WARN_ONCE(
+          get_node()->get_logger(),
+          "have:(%f %f %f)",
+          cmd->twist.linear.x,
+          cmd->twist.linear.y,
+          cmd->twist.angular.z);
       });
   }
   else
@@ -362,14 +372,29 @@ controller_interface::CallbackReturn MecanumController::on_configure(
         DEFAULT_COMMAND_UNSTAMPED_TOPIC, rclcpp::SystemDefaultsQoS(),
         [this](std::shared_ptr<Twist> msg)
         {
-          if (!subscriber_is_active_) return;
-          std::shared_ptr<TwistStamped> twist_stamped;
-          // FIX: new get() interface
-          received_velocity_msg_ptr_.get(
-            [&](const auto & ptr) { twist_stamped = ptr; });
+          if (!subscriber_is_active_){
+            RCLCPP_WARN(get_node()->get_logger(), "Subscriber inactive, drop command");
+            return;
+          }
+          std::shared_ptr<TwistStamped> twist_stamped=std::make_shared<TwistStamped>();
+
           twist_stamped->twist       = *msg;
           twist_stamped->header.stamp = get_node()->get_clock()->now();
-        });
+
+          received_velocity_msg_ptr_.set(
+            [&](auto & ptr) { ptr = std::move(twist_stamped); });
+
+          std::shared_ptr<TwistStamped> cmd;
+          received_velocity_msg_ptr_.get([&](const auto & ptr) { cmd = ptr; });
+
+          RCLCPP_WARN_ONCE(
+            get_node()->get_logger(),
+            "not have:(%f %f %f)",
+            cmd->twist.linear.x,
+            cmd->twist.linear.y,
+            cmd->twist.angular.z);
+
+        });          
   }
 
   odometry_publisher_ = get_node()->create_publisher<nav_msgs::msg::Odometry>(

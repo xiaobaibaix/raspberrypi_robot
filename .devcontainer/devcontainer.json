@@ -1,0 +1,12 @@
+{
+  "dockerComposeFile": "../docker-compose.yml",   // 如果你用 compose；单容器可省略
+  "service": "ros",                               // compose 里的 service 名
+  "workspaceFolder": "/workspace/my_project",
+  "remoteUser": "ubuntu",                         // ← 关键：指定非 root
+  "overrideCommand": false,
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-vscode.cpptools", "ms-python.python"]
+    }
+  }
+}

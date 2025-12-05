@@ -203,8 +203,7 @@ int main(int argc, char *argv[]) {
 
       auto scan_msg = std::make_shared<sensor_msgs::msg::LaserScan>();
 
-      scan_msg->header.stamp.sec = RCL_NS_TO_S(scan.stamp);
-      scan_msg->header.stamp.nanosec =  scan.stamp - RCL_S_TO_NS(scan_msg->header.stamp.sec);
+      scan_msg->header.stamp = node->now();   // 使用 ROS 时间
       scan_msg->header.frame_id = frame_id;
       scan_msg->angle_min = scan.config.min_angle;
       scan_msg->angle_max = scan.config.max_angle;
