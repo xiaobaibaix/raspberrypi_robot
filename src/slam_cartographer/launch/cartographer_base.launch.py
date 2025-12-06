@@ -17,7 +17,7 @@ import os
 
 def generate_launch_description():
 
-    carto_path = get_package_share_directory("slam_cartographer")
+    robot_path = get_package_share_directory("robot_car_mecanum")
 
     ld= LaunchDescription()
 
@@ -25,9 +25,9 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 os.path.join(
-                    carto_path,
+                    robot_path,
                     'launch',
-                    'cartographer_base.launch.py'
+                    'robot_car_driver.launch.py'
                 ),
             ])
         )
@@ -37,9 +37,21 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 os.path.join(
-                    carto_path,
+                    robot_path,
                     'launch',
-                    'cartographer_creater.launch.py'
+                    'robot_ros2_control.launch.py'
+                ),
+            ])
+        )
+    )
+
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                os.path.join(
+                    robot_path,
+                    'launch',
+                    'ekf.launch.py'
                 ),
             ])
         )
