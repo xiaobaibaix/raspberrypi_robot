@@ -13,7 +13,8 @@ ekf_filter_node:
     world_frame: odom
     
     # 轮式里程计输入
-    odom0: /mecanum_controller/odom
+    # odom0: /mecanum_controller/odom
+    odom0: /mecanum_drive_controller/odometry
     odom0_config: [true, true, false, false, false, true, true, true, false, false, false, true, false, false, false]
     odom0_differential: false
     odom0_relative: false

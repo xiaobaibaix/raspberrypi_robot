@@ -46,6 +46,7 @@ def generate_launch_description():
         arguments=['joint_state_broadcaster'],
         output='both'
         )
+
     mecaspawner= Node(
         package='controller_manager',
         executable='spawner', 
@@ -91,14 +92,5 @@ def generate_launch_description():
             ]
         )
     ))
-
-    # ld.add_action(RegisterEventHandler(
-    #     event_handler=OnProcessExit(
-    #         target_action=imuspawner,
-    #         on_exit=[
-    #             laserspawner
-    #         ]
-    #     )
-    # ))
 
     return ld

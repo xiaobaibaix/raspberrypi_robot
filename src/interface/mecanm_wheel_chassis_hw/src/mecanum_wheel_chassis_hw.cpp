@@ -1,7 +1,7 @@
 #include "mecanum_wheel_chassis_hw/mecanum_wheel_chassis_hw.hpp"
 #include <vector>
 #include <string>
-#include "robot_msgs/msg/motor_state.hpp"   // 自定义消息
+
 namespace mecanum_wheel_chassis_hw
 {
     hardware_interface::CallbackReturn MecanumWheelChassisHW::on_init(
@@ -65,20 +65,8 @@ namespace mecanum_wheel_chassis_hw
     hardware_interface::CallbackReturn MecanumWheelChassisHW::on_activate(
         const rclcpp_lifecycle::State & previous_state)
     {
-        (void)previous_state;  // 新增：显式声明参数未使用
-        auto cm_node = rclcpp::Node::make_shared("_internal_cm_node");  // 临时节点，仅取接口
-        node_base_     = cm_node->get_node_base_interface();
-        node_logging_  = cm_node->get_node_logging_interface();
-        node_topics_   = cm_node->get_node_topics_interface();
-        node_services_ = cm_node->get_node_services_interface();
-
-        state_pub_ = rclcpp::create_publisher<robot_msgs::msg::MotorsState>(
-            node_topics_,
-            "/ros_robot_controller/set_motor",
-            rclcpp::QoS(10)
-        );
-
-        RCLCPP_INFO(node_logging_->get_logger(), "FourWheelChassisHW activated, pub & srv ready.");
+        (void)previous_state;
+        motor_driver_ = new MecanumMotorDriver("/dev/ttyUSB0", 115200, std::chrono::milliseconds(50));
         return hardware_interface::CallbackReturn::SUCCESS;
     }
 
@@ -86,8 +74,8 @@ namespace mecanum_wheel_chassis_hw
         const rclcpp_lifecycle::State & previous_state)
     {
         (void)previous_state;
-        state_pub_.reset();
-        RCLCPP_INFO(node_logging_->get_logger(), "FourWheelChassisHW deactivated.");
+        delete motor_driver_;
+        motor_driver_ = nullptr;
         return hardware_interface::CallbackReturn::SUCCESS;
     }   
 
@@ -95,9 +83,15 @@ namespace mecanum_wheel_chassis_hw
         const rclcpp::Time & time, const rclcpp::Duration & period)
     {
         (void)time;
-        (void)period;
-
-        
+        // 读取编码器值
+        auto encoders = motor_driver_->readEncoder();
+        for (size_t i = 0; i < hw_positions_.size(); ++i)
+        {   
+            // 假设每转一圈编码器计数为 4096
+            double position = static_cast<double>(encoders[i]) / 4096.0 * 2.0 * 3.141592653589793;
+            hw_velocities_[i] = (position - hw_positions_[i]) / period.seconds();
+            hw_positions_[i] = position;
+        }
         return hardware_interface::return_type::OK;
     }
 
@@ -106,47 +100,16 @@ namespace mecanum_wheel_chassis_hw
     {
         (void)time;
         (void)period;
-        state_pub_->publish(robot_msgs::msg::MotorsState(
-            robot_msgs::msg::MotorsState().set__data({
-                robot_msgs::msg::MotorState().set__id(1).set__rps(
-                    abs(hw_commands_[0]*10)>100?(100.0* (hw_commands_[0]>0?-1:1)):-hw_commands_[0]*10),
-                robot_msgs::msg::MotorState().set__id(2).set__rps(
-                    abs(hw_commands_[1]*10)>100?(100.0* (hw_commands_[1]>0?1:-1)):hw_commands_[1]*10),
-                robot_msgs::msg::MotorState().set__id(3).set__rps(
-                    abs(hw_commands_[2]*10)>100?(100.0* (hw_commands_[2]>0?1:-1)):hw_commands_[2]*10),
-                robot_msgs::msg::MotorState().set__id(4).set__rps(
-                    abs(hw_commands_[3]*10)>100?(100.0* (hw_commands_[3]>0?-1:1)):-hw_commands_[3]*10),
-            })
-        ));
-
-
-        hw_velocities_[0]= hw_commands_[0];
-        hw_velocities_[1]= hw_commands_[1];
-        hw_velocities_[2]= hw_commands_[2];
-        hw_velocities_[3]= hw_commands_[3];
-
-
-
-        if((hw_velocities_[0]>0&&hw_velocities_[1]>0&&hw_velocities_[2]>0&&hw_velocities_[3]>0)
-        ||(hw_velocities_[0]<0&&hw_velocities_[1]<0&&hw_velocities_[2]<0&&hw_velocities_[3]<0)){
-            hw_positions_[0]  += hw_velocities_[0] * period.seconds();
-            hw_positions_[1]  += hw_velocities_[1] * period.seconds();
-            hw_positions_[2]  += hw_velocities_[2] * period.seconds();
-            hw_positions_[3]  += hw_velocities_[3] * period.seconds();
-        }else{
-            hw_positions_[0]  += hw_velocities_[0] * period.seconds();
-            hw_positions_[1]  += hw_velocities_[1] * period.seconds();
-            hw_positions_[2]  += -hw_velocities_[2] * period.seconds();
-            hw_positions_[3]  += -hw_velocities_[3] * period.seconds();
+        // 将速度命令转换为 PWM 信号
+        std::array<int16_t, 4> pwm_commands;
+        for (size_t i = 0; i < hw_commands_.size(); ++i)
+        {
+            // 简单线性映射，假设最大速度对应最大 PWM 值    
+            pwm_commands[i] = static_cast<int16_t>(hw_commands_[i] / 10.0 * 255.0);
+            if (pwm_commands[i] > 255) pwm_commands[i] = 255;
+            if (pwm_commands[i] < -255) pwm_commands[i] = -255;
         }
-
-
-        // RCLCPP_INFO(node_logging_->get_logger(), "%.4f,%.4f,%.4f,%.4f",
-        //     hw_commands_[0],
-        //     hw_commands_[1],
-        //     hw_commands_[2],
-        //     hw_commands_[3]);
-
+        motor_driver_->writeSpeed(pwm_commands);
         return hardware_interface::return_type::OK;
     }
 

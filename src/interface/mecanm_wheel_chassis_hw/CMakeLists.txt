@@ -11,8 +11,8 @@ find_package(pluginlib REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
-find_package(example_interfaces REQUIRED)
-find_package(robot_msgs REQUIRED)
+find_package(serial_driver REQUIRED)
+
 # 包含目录
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -24,6 +24,7 @@ ament_export_include_directories(
 
 add_library(${PROJECT_NAME} SHARED
   src/mecanum_wheel_chassis_hw.cpp
+  src/mecanum_motor_driver.cpp
 )
 
 # 目标编译特性
@@ -35,8 +36,7 @@ ament_target_dependencies(${PROJECT_NAME}
   hardware_interface
   rclcpp
   rclcpp_lifecycle
-  example_interfaces
-  robot_msgs
+  serial_driver
 )
 
 install(TARGETS ${PROJECT_NAME}

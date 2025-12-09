@@ -1,0 +1,135 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 50  # 保持50Hz，避免Overrun
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    imu_sensor_broadcaster:
+      type: imu_sensor_broadcaster/IMUSensorBroadcaster
+
+    fl_speed_pid:
+      type: pid_controller/PidController
+    fr_speed_pid:
+      type: pid_controller/PidController
+    rl_speed_pid:
+      type: pid_controller/PidController
+    rr_speed_pid:
+      type: pid_controller/PidController
+
+    mecanum_drive_controller:
+      type: mecanum_drive_controller/MecanumDriveController
+    
+
+
+fl_speed_pid:
+  ros__parameters:
+    dof_names:
+      - left_front_wheel_joint
+
+    command_interface: velocity
+
+    reference_and_state_interfaces:
+      - velocity
+
+    gains:
+      left_front_wheel_joint: {
+        "p": 0.5, 
+        "i": 0.01, 
+        "d": 0.0, 
+        "i_clamp_min": -20.0, 
+        "i_clamp_max": 20.0, 
+        "antiwindup": true, 
+        "feedforward_gain": 0.95
+      }
+
+fr_speed_pid:
+  ros__parameters:
+    dof_names:
+      - right_front_wheel_joint
+
+    command_interface: velocity
+
+    reference_and_state_interfaces:
+      - velocity
+
+    gains:
+      right_front_wheel_joint: {
+        "p": 0.5, 
+        "i": 0.01, 
+        "d": 0.0, 
+        "i_clamp_min": -20.0, 
+        "i_clamp_max": 20.0, 
+        "antiwindup": true, 
+        "feedforward_gain": 0.95
+      }
+
+
+rl_speed_pid:
+  ros__parameters:
+    dof_names:
+      - left_rear_wheel_joint
+
+    command_interface: velocity
+
+    reference_and_state_interfaces:
+      - velocity
+
+    gains:
+      left_rear_wheel_joint: {
+        "p": 0.5, 
+        "i": 0.01, 
+        "d": 0.0, 
+        "i_clamp_min": -20.0, 
+        "i_clamp_max": 20.0, 
+        "antiwindup": true, 
+        "feedforward_gain": 0.95
+      }
+
+rr_speed_pid:
+  ros__parameters:
+    dof_names:
+      - right_rear_wheel_joint
+
+    command_interface: velocity
+
+    reference_and_state_interfaces:
+      - velocity
+
+    gains:
+      right_rear_wheel_joint: {
+        "p": 0.5, 
+        "i": 0.01, 
+        "d": 0.0, 
+        "i_clamp_min": -20.0, 
+        "i_clamp_max": 20.0, 
+        "antiwindup": true, 
+        "feedforward_gain": 0.95
+      }
+
+mecanum_drive_controller:
+  ros__parameters:
+    reference_timeout: 0.2
+    front_left_wheel_command_joint_name: "fl_speed_pid/left_front_wheel_joint"
+    front_right_wheel_command_joint_name: "fr_speed_pid/right_front_wheel_joint"
+    rear_left_wheel_command_joint_name: "rl_speed_pid/left_rear_wheel_joint"
+    rear_right_wheel_command_joint_name: "rr_speed_pid/right_rear_wheel_joint"
+
+    kinematics:
+      base_frame_offset: { x: 1.0, y: 2.0, theta: 3.0 }
+      wheels_radius: 0.05
+      sum_of_robot_center_projection_on_X_Y_axis: 0.2925
+
+    base_frame_id: "base_footprint"
+    odom_frame_id: "odom"
+    enable_odom_tf: false
+    pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
+    twist_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
+
+# IMU广播器
+imu_sensor_broadcaster:
+  ros__parameters:
+    sensor_name: "mpu6050"
+    frame_id: "imu"
+    orientation_covariance: [0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001]
+    angular_velocity_covariance: [0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001]
+    linear_acceleration_covariance: [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
