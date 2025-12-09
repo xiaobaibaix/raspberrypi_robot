@@ -108,7 +108,7 @@ def generate_launch_description():
             target_action=controller_manager,
             on_start=[
                 TimerAction(
-                    period=1.0,
+                    period=0.0,
                     actions=[jspawner]
                 )
             ]
@@ -120,7 +120,7 @@ def generate_launch_description():
             target_action=jspawner,
             on_exit=[
                 TimerAction(
-                    period=0.5,
+                    period=0.0,
                     actions=[imuspawner]
                 )
             ]
@@ -129,10 +129,11 @@ def generate_launch_description():
 
     ld.add_action(RegisterEventHandler(
         event_handler=OnProcessExit(
-            target_action=imuspawner,
+            # target_action=imuspawner,
+            target_action=jspawner,
             on_exit=[
                 TimerAction(
-                    period=0.5,
+                    period=0.0,
                     actions=[fl_pid_spawner]
                 )
             ]
@@ -145,7 +146,7 @@ def generate_launch_description():
             target_action=fl_pid_spawner,
             on_exit=[
                 TimerAction(
-                    period=0.2,
+                    period=0.0,
                     actions=[fr_pid_spawner]
                 )
             ]
@@ -157,7 +158,7 @@ def generate_launch_description():
             target_action=fr_pid_spawner,
             on_exit=[
                 TimerAction(
-                    period=0.2,
+                    period=0.0,
                     actions=[rl_pid_spawner]
                 )
             ]
@@ -169,7 +170,7 @@ def generate_launch_description():
             target_action=rl_pid_spawner,
             on_exit=[
                 TimerAction(
-                    period=0.2,
+                    period=0.0,
                     actions=[rr_pid_spawner]
                 )
             ]
@@ -181,7 +182,7 @@ def generate_launch_description():
             target_action=rr_pid_spawner,
             on_exit=[
                 TimerAction(
-                    period=0.5,
+                    period=0.0,
                     actions=[mecaspawner]
                 )
             ]

@@ -66,7 +66,7 @@ namespace mecanum_wheel_chassis_hw
         const rclcpp_lifecycle::State & previous_state)
     {
         (void)previous_state;
-        motor_driver_ = new MecanumMotorDriver("/dev/ttyUSB0", 115200, std::chrono::milliseconds(50));
+        motor_driver_ = new MecanumMotorDriver("/dev/pts/2", 115200);
         return hardware_interface::CallbackReturn::SUCCESS;
     }
 
@@ -83,6 +83,7 @@ namespace mecanum_wheel_chassis_hw
         const rclcpp::Time & time, const rclcpp::Duration & period)
     {
         (void)time;
+        (void)period;
         // 读取编码器值
         auto encoders = motor_driver_->readEncoder();
         for (size_t i = 0; i < hw_positions_.size(); ++i)
