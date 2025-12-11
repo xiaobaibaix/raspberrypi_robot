@@ -12,6 +12,7 @@ find_package(hardware_interface REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(serial_driver REQUIRED)
+find_package(robot_msgs REQUIRED)
 
 # 包含目录
 include_directories(
@@ -37,6 +38,7 @@ ament_target_dependencies(${PROJECT_NAME}
   rclcpp
   rclcpp_lifecycle
   serial_driver
+  robot_msgs
 )
 
 install(TARGETS ${PROJECT_NAME}
