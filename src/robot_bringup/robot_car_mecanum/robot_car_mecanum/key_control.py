@@ -22,9 +22,9 @@ class MecanumKeyboardControl(Node):
             self.get_logger().info('Publishing Twist on "%s"' % self.topic_name)
 
         # ---------------- 运动参数 ----------------
-        self.linear_speed  = 0.5
-        self.angular_speed = 1.0
-        self.strafe_speed  = 0.5
+        self.linear_speed  = 0.3
+        self.angular_speed = 0.3
+        self.strafe_speed  = 0.3
 
         # ---------------- 终端检测 ----------------
         self.tty = sys.stdin.isatty()

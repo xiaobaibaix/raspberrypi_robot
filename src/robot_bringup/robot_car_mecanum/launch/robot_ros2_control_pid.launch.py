@@ -59,39 +59,18 @@ def generate_launch_description():
         prefix='',
     )
 
-    # PID控制器按顺序启动而不是同时启动
-    fl_pid_spawner = Node(
-        package='controller_manager',
-        executable='spawner', 
-        arguments=['fl_speed_pid'],
-        output='both',
-        prefix='',
-    )
-    
-    fr_pid_spawner = Node(
-        package='controller_manager',
-        executable='spawner', 
-        arguments=['fr_speed_pid'],
-        output='both',
-        prefix='',
-    )
-    
-    rl_pid_spawner = Node(
-        package='controller_manager',
-        executable='spawner', 
-        arguments=['rl_speed_pid'],
-        output='both',
-        prefix='',
-    )
-    
-    rr_pid_spawner = Node(
-        package='controller_manager',
-        executable='spawner', 
-        arguments=['rr_speed_pid'],
-        output='both',
-        prefix='',
-    )
+    ld.add_action(jspawner) 
+    ld.add_action(imuspawner)
 
+    # PID控制器按顺序启动而不是同时启动
+    pid_spawner = Node(
+        package='controller_manager',
+        executable='spawner', 
+        arguments=['fl_speed_pid','fr_speed_pid','rl_speed_pid','rr_speed_pid'],
+        output='both',
+        prefix='',
+    )
+    
     mecaspawner = Node(
         package='controller_manager',
         executable='spawner', 
@@ -102,89 +81,21 @@ def generate_launch_description():
         parameters=[{'use_sim_time': False}]
     )
 
-    # 修改事件处理顺序
-    ld.add_action(RegisterEventHandler(
-        event_handler=OnProcessStart(
-            target_action=controller_manager,
-            on_start=[
-                TimerAction(
-                    period=0.0,
-                    actions=[jspawner]
-                )
-            ]
-        )
-    ))
 
     ld.add_action(RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=jspawner,
             on_exit=[
-                TimerAction(
-                    period=0.0,
-                    actions=[imuspawner]
-                )
+                pid_spawner
             ]
         )
     ))
 
     ld.add_action(RegisterEventHandler(
         event_handler=OnProcessExit(
-            # target_action=imuspawner,
-            target_action=jspawner,
+            target_action=pid_spawner,
             on_exit=[
-                TimerAction(
-                    period=0.0,
-                    actions=[fl_pid_spawner]
-                )
-            ]
-        )
-    ))
-
-    # 顺序启动PID控制器
-    ld.add_action(RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=fl_pid_spawner,
-            on_exit=[
-                TimerAction(
-                    period=0.0,
-                    actions=[fr_pid_spawner]
-                )
-            ]
-        )
-    ))
-
-    ld.add_action(RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=fr_pid_spawner,
-            on_exit=[
-                TimerAction(
-                    period=0.0,
-                    actions=[rl_pid_spawner]
-                )
-            ]
-        )
-    ))
-
-    ld.add_action(RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=rl_pid_spawner,
-            on_exit=[
-                TimerAction(
-                    period=0.0,
-                    actions=[rr_pid_spawner]
-                )
-            ]
-        )
-    ))
-
-    ld.add_action(RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=rr_pid_spawner,
-            on_exit=[
-                TimerAction(
-                    period=0.0,
-                    actions=[mecaspawner]
-                )
+                mecaspawner
             ]
         )
     ))

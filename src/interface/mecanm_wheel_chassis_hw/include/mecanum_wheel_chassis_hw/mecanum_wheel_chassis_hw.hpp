@@ -40,11 +40,11 @@ namespace mecanum_wheel_chassis_hw
         std::vector<double> hw_velocities_;
         std::vector<double> hw_commands_;
 
-        std::size_t encoder_ppr_;
+        double encoder_ppr_;
         double wheel_radius_;
         double gear_ratio_;
         std::string serial_port_;
-        uint32_t baud_rate_;
+        double baud_rate_;
         int max_pwm_;
         int min_pwm_;
 

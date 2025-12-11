@@ -33,7 +33,7 @@ fl_speed_pid:
 
     gains:
       left_front_wheel_joint: {
-        "p": 0.5, 
+        "p": 0.25, 
         "i": 0.01, 
         "d": 0.0, 
         "i_clamp_min": -20.0, 
@@ -54,7 +54,7 @@ fr_speed_pid:
 
     gains:
       right_front_wheel_joint: {
-        "p": 0.5, 
+        "p": 0.25, 
         "i": 0.01, 
         "d": 0.0, 
         "i_clamp_min": -20.0, 
@@ -76,7 +76,7 @@ rl_speed_pid:
 
     gains:
       left_rear_wheel_joint: {
-        "p": 0.5, 
+        "p": 0.25, 
         "i": 0.01, 
         "d": 0.0, 
         "i_clamp_min": -20.0, 
@@ -97,7 +97,7 @@ rr_speed_pid:
 
     gains:
       right_rear_wheel_joint: {
-        "p": 0.5, 
+        "p": 0.25, 
         "i": 0.01, 
         "d": 0.0, 
         "i_clamp_min": -20.0, 
@@ -114,10 +114,15 @@ mecanum_drive_controller:
     rear_left_wheel_command_joint_name: "rl_speed_pid/left_rear_wheel_joint"
     rear_right_wheel_command_joint_name: "rr_speed_pid/right_rear_wheel_joint"
 
+    front_left_wheel_state_joint_name: "left_front_wheel_joint"
+    front_right_wheel_state_joint_name: "right_front_wheel_joint"
+    rear_left_wheel_state_joint_name: "left_rear_wheel_joint"
+    rear_right_wheel_state_joint_name: "right_rear_wheel_joint"
+
     kinematics:
-      base_frame_offset: { x: 1.0, y: 2.0, theta: 3.0 }
-      wheels_radius: 0.05
-      sum_of_robot_center_projection_on_X_Y_axis: 0.2925
+      base_frame_offset: { x: 0.0, y: 0.0, theta: 0.0 }
+      wheels_radius: 0.03
+      sum_of_robot_center_projection_on_X_Y_axis: 0.569
 
     base_frame_id: "base_footprint"
     odom_frame_id: "odom"

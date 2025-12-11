@@ -34,10 +34,10 @@ namespace mecanum_wheel_chassis_hw
             }
         }
         
-        encoder_ppr_ = 4096;  // 编码器每转脉冲数
+        encoder_ppr_ = 4096.0;  // 编码器每转脉冲数
         if (info_.hardware_parameters.find("encoder_ppr") != info_.hardware_parameters.end()) {
             try {
-                encoder_ppr_ = std::stoi(info_.hardware_parameters.at("encoder_ppr"));
+                encoder_ppr_ = std::stod(info_.hardware_parameters.at("encoder_ppr"));
             } catch (const std::exception& e) {
                 RCLCPP_ERROR(rclcpp::get_logger("MecanumWheelChassisHW"), 
                             "encoder_ppr 参数转换失败: %s", e.what());
@@ -188,16 +188,18 @@ namespace mecanum_wheel_chassis_hw
         const rclcpp::Time & time, const rclcpp::Duration & period)
     {
         (void)time;
-        (void)period;
         // 读取编码器值
         auto encoders = motor_driver_->readEncoder();
         for (size_t i = 0; i < hw_positions_.size(); ++i)
         {   
-            // 假设每转一圈编码器计数为 4096
-            double wheel_angle = encoders[i] / encoder_ppr_ * 2.0 * M_PI / gear_ratio_;
+            // 假设每转一圈编码器计数为 255
+            double wheel_angle = (encoders[i] / encoder_ppr_) * 2.0 * M_PI / gear_ratio_;
             hw_velocities_[i] = (wheel_angle - hw_positions_[i]) / period.seconds();
             hw_positions_[i] = wheel_angle;
+            // RCLCPP_INFO(rclcpp::get_logger("MecanumWheelChassisHW"), 
+            // "speed:%f position:%f encode:%d",hw_velocities_[i],hw_positions_[i],encoders[i]);
         }
+
         return hardware_interface::return_type::OK;
     }
 
@@ -207,14 +209,18 @@ namespace mecanum_wheel_chassis_hw
         (void)time;
         (void)period;
         // 将速度命令转换为 PWM 信号
-        std::array<int16_t, 4> pwm_commands;
+        std::array<int16_t, 4> pwm_commands={0};
         for (size_t i = 0; i < hw_commands_.size(); ++i)
         {
-            pwm_commands[i] = static_cast<int16_t>(hw_commands_[i] / max_speed_[i] * max_pwm_);
-            if (pwm_commands[i] > max_pwm_) pwm_commands[i] = max_pwm_;
-            if (pwm_commands[i] < min_pwm_) pwm_commands[i] = min_pwm_;
+            pwm_commands[i] = static_cast<int16_t>(hw_commands_[i]*10); // 简单线性映射，实际应用中可能需要更复杂的转换
+            // RCLCPP_INFO(rclcpp::get_logger("MecanumWheelChassisHW"), 
+            // "cmd:%f pwm:%d",hw_commands_[i],pwm_commands[i]);
+            // if (pwm_commands[i] > max_pwm_) pwm_commands[i] = max_pwm_;
+            // if (pwm_commands[i] < min_pwm_) pwm_commands[i] = min_pwm_;
+            // RCLCPP_INFO(rclcpp::get_logger("MecanumWheelChassisHW"), 
+            // "cmd:%f pwm:%d",hw_commands_[i],pwm_commands[i]);
         }
-        motor_driver_->writeSpeed(pwm_commands);
+        // motor_driver_->writeSpeed(pwm_commands);
         return hardware_interface::return_type::OK;
     }
 
