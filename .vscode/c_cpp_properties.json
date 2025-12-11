@@ -5,9 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/opt/ros/jazzy/include/**",
-                "/usr/include/**",
-                "/usr/local/include/**",
-                "/home/ubuntu/workspace/raspberrypi_robot/src/interface/mecanum_wheel_chassis_hw/include/mecanum_wheel_chassis_hw/**",
+                "/usr/include/**"
             ],
             "defines": [],
             "cStandard": "c17",
