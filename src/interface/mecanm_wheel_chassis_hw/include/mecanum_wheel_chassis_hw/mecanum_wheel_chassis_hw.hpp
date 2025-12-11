@@ -40,8 +40,17 @@ namespace mecanum_wheel_chassis_hw
         std::vector<double> hw_velocities_;
         std::vector<double> hw_commands_;
 
-        std::vector<std::string> command_interface_types_;
+        std::size_t encoder_ppr_;
+        double wheel_radius_;
+        double gear_ratio_;
+        std::string serial_port_;
+        uint32_t baud_rate_;
+        int max_pwm_;
+        int min_pwm_;
 
+        std::array<double, 4> max_speed_;
+
+        std::vector<std::string> command_interface_types_;
         MecanumMotorDriver* motor_driver_ = nullptr;
     };
 }

@@ -6,6 +6,17 @@
   <ros2_control name="MecanumChassisSystem" type="system">
     <hardware>
       <plugin>mecanum_wheel_chassis_hw/MecanumWheelChassisHW</plugin>
+      <param name="serial_port">/dev/ttyUSB0</param>
+      <param name="baud_rate">115200</param>
+      <param name="encoder_ppr">2550</param>
+      <param name="wheel_radius">0.03</param>
+      <param name="gear_ratio">1</param>
+      <param name="max_pwm">255</param>
+      <param name="min_pwm">-255</param>
+      <param name="lf_max_speed">10.0</param>
+      <param name="rf_max_speed">10.0</param>
+      <param name="lr_max_speed">10.0</param>
+      <param name="rr_max_speed">10.0</param>
     </hardware>
 
     <joint name="left_front_wheel_joint">

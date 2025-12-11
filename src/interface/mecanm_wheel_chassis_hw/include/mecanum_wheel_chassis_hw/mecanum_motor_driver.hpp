@@ -12,7 +12,6 @@
 #include <array>
 #include <algorithm>
 
-// ROS 2 serial_driver 头文件
 #include "io_context/io_context.hpp"
 #include "serial_driver/serial_port.hpp"
 #include "serial_driver/serial_driver.hpp"
@@ -44,6 +43,5 @@ private:
     std::condition_variable cv_;
     bool stop_ = false;
 
-    std::vector<uint8_t> rxBuf_;
     std::array<std::queue<int32_t>, 4> encQueues_;
 };

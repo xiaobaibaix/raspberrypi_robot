@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 5  # 保持50Hz，避免Overrun
+    update_rate: 1  # 保持50Hz，避免Overrun
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 

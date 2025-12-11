@@ -1,5 +1,0 @@
-<library path="ydlidar_hw">
-  <class name="ydlidar_hw/YdlidarHw"
-         type="ydlidar_hw::YdlidarHw"
-         base_class_type="hardware_interface::SensorInterface"/>
-</library>

@@ -1,9 +1,0 @@
-<library path="ydlidar_broadcaster">
-  <class name="ydlidar_broadcaster/YdlidarBroadcaster" 
-         type="ydlidar_broadcaster::YdlidarBroadcaster" 
-         base_class_type="controller_interface::ControllerInterface">
-    <description>
-    Publish /scan and broadcast laser_frame->base_link TF
-    </description>
-  </class>
-</library>

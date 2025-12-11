@@ -7,13 +7,118 @@ namespace mecanum_wheel_chassis_hw
     hardware_interface::CallbackReturn MecanumWheelChassisHW::on_init(
     const hardware_interface::HardwareComponentInterfaceParams & params)
     {
-        if (hardware_interface::SystemInterface::on_init(params) !=  // 注意：这里传入 params 而非 info
+        if (hardware_interface::SystemInterface::on_init(params) !=
             hardware_interface::CallbackReturn::SUCCESS)
         {
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        // 后续逻辑完全不变（info_ 仍会被基类初始化，无需修改）
+        if (info_.hardware_parameters.empty()) {
+            RCLCPP_WARN(rclcpp::get_logger("MecanumWheelChassisHW"), 
+                    "没有硬件参数，使用默认值");
+        }
+        
+        std::string serial_port = "/dev/ttyUSB0";  // 默认值
+        uint32_t baud_rate = 115200;               // 默认值
+        
+        if (info_.hardware_parameters.find("serial_port") != info_.hardware_parameters.end()) {
+            serial_port = info_.hardware_parameters.at("serial_port");
+        }
+        
+        if (info_.hardware_parameters.find("baud_rate") != info_.hardware_parameters.end()) {
+            try {
+                baud_rate = std::stoi(info_.hardware_parameters.at("baud_rate"));
+            } catch (const std::exception& e) {
+                RCLCPP_ERROR(rclcpp::get_logger("MecanumWheelChassisHW"), 
+                            "baud_rate 参数转换失败: %s", e.what());
+            }
+        }
+        
+        encoder_ppr_ = 4096;  // 编码器每转脉冲数
+        if (info_.hardware_parameters.find("encoder_ppr") != info_.hardware_parameters.end()) {
+            try {
+                encoder_ppr_ = std::stoi(info_.hardware_parameters.at("encoder_ppr"));
+            } catch (const std::exception& e) {
+                RCLCPP_ERROR(rclcpp::get_logger("MecanumWheelChassisHW"), 
+                            "encoder_ppr 参数转换失败: %s", e.what());
+            }
+        }
+        
+        wheel_radius_ = 0.05;  // 轮子半径 (米)
+        if (info_.hardware_parameters.find("wheel_radius") != info_.hardware_parameters.end()) {
+            try {
+                wheel_radius_ = std::stod(info_.hardware_parameters.at("wheel_radius"));
+            } catch (const std::exception& e) {
+                RCLCPP_ERROR(rclcpp::get_logger("MecanumWheelChassisHW"), 
+                            "wheel_radius 参数转换失败: %s", e.what());
+            }
+        }
+        
+        gear_ratio_ = 1.0;  // 减速比
+        if (info_.hardware_parameters.find("gear_ratio") != info_.hardware_parameters.end()) {
+            try {
+                gear_ratio_ = std::stod(info_.hardware_parameters.at("gear_ratio"));
+            } catch (const std::exception& e) {
+                RCLCPP_ERROR(rclcpp::get_logger("MecanumWheelChassisHW"), 
+                            "gear_ratio 参数转换失败: %s", e.what());
+            }
+        }
+        
+        max_pwm_ = 255;  // 最大PWM值
+        if (info_.hardware_parameters.find("max_pwm") != info_.hardware_parameters.end()) {
+            try {
+                max_pwm_ = std::stoi(info_.hardware_parameters.at("max_pwm"));
+            } catch (const std::exception& e) {
+                RCLCPP_ERROR(rclcpp::get_logger("MecanumWheelChassisHW"), 
+                            "max_pwm 参数转换失败: %s", e.what());
+            }
+        }
+        min_pwm_ = -255;  // 最小PWM值
+        if (info_.hardware_parameters.find("min_pwm") != info_.hardware_parameters.end()) {
+            try {
+                max_pwm_ = std::stoi(info_.hardware_parameters.at("min_pwm"));
+            } catch (const std::exception& e) {
+                RCLCPP_ERROR(rclcpp::get_logger("MecanumWheelChassisHW"), 
+                            "max_pwm 参数转换失败: %s", e.what());
+            }
+        }
+
+        max_speed_={10,10,10,10}; // 默认最大速度10m/s
+        if (info_.hardware_parameters.find("lf_max_speed") != info_.hardware_parameters.end()) {
+            try {
+                max_speed_[0] = std::stod(info_.hardware_parameters.at("lf_max_speed"));
+            } catch (const std::exception& e) {
+                RCLCPP_ERROR(rclcpp::get_logger("MecanumWheelChassisHW"), 
+                            "lf_max_speed 参数转换失败: %s", e.what());
+            }
+        }       
+        if (info_.hardware_parameters.find("rf_max_speed") != info_.hardware_parameters.end()) {
+            try {
+                max_speed_[1] = std::stod(info_.hardware_parameters.at("rf_max_speed"));
+            } catch (const std::exception& e) {
+                RCLCPP_ERROR(rclcpp::get_logger("MecanumWheelChassisHW"), 
+                            "rf_max_speed 参数转换失败: %s", e.what());
+            }
+        }     
+        if (info_.hardware_parameters.find("lr_max_speed") != info_.hardware_parameters.end()) {
+            try {
+                max_speed_[2] = std::stod(info_.hardware_parameters.at("lr_max_speed"));
+            } catch (const std::exception& e) {
+                RCLCPP_ERROR(rclcpp::get_logger("MecanumWheelChassisHW"), 
+                            "lr_max_speed 参数转换失败: %s", e.what());
+            }
+        }     
+        if (info_.hardware_parameters.find("rr_max_speed") != info_.hardware_parameters.end()) {
+            try {
+                max_speed_[3] = std::stod(info_.hardware_parameters.at("rr_max_speed"));
+            } catch (const std::exception& e) {
+                RCLCPP_ERROR(rclcpp::get_logger("MecanumWheelChassisHW"), 
+                            "rr_max_speed 参数转换失败: %s", e.what());
+            }
+        }     
+        serial_port_ = serial_port;
+        baud_rate_ = baud_rate;
+
         const size_t n = info_.joints.size();
         hw_positions_.assign(n, 0.0);
         hw_velocities_.assign(n, 0.0);
@@ -66,7 +171,7 @@ namespace mecanum_wheel_chassis_hw
         const rclcpp_lifecycle::State & previous_state)
     {
         (void)previous_state;
-        motor_driver_ = new MecanumMotorDriver("/dev/pts/2", 115200);
+        motor_driver_ = new MecanumMotorDriver(serial_port_, baud_rate_);
         return hardware_interface::CallbackReturn::SUCCESS;
     }
 
@@ -89,9 +194,9 @@ namespace mecanum_wheel_chassis_hw
         for (size_t i = 0; i < hw_positions_.size(); ++i)
         {   
             // 假设每转一圈编码器计数为 4096
-            double position = static_cast<double>(encoders[i]) / 4096.0 * 2.0 * 3.141592653589793;
-            hw_velocities_[i] = (position - hw_positions_[i]) / period.seconds();
-            hw_positions_[i] = position;
+            double wheel_angle = encoders[i] / encoder_ppr_ * 2.0 * M_PI / gear_ratio_;
+            hw_velocities_[i] = (wheel_angle - hw_positions_[i]) / period.seconds();
+            hw_positions_[i] = wheel_angle;
         }
         return hardware_interface::return_type::OK;
     }
@@ -105,10 +210,9 @@ namespace mecanum_wheel_chassis_hw
         std::array<int16_t, 4> pwm_commands;
         for (size_t i = 0; i < hw_commands_.size(); ++i)
         {
-            // 简单线性映射，假设最大速度对应最大 PWM 值    
-            pwm_commands[i] = static_cast<int16_t>(hw_commands_[i] / 10.0 * 255.0);
-            if (pwm_commands[i] > 255) pwm_commands[i] = 255;
-            if (pwm_commands[i] < -255) pwm_commands[i] = -255;
+            pwm_commands[i] = static_cast<int16_t>(hw_commands_[i] / max_speed_[i] * max_pwm_);
+            if (pwm_commands[i] > max_pwm_) pwm_commands[i] = max_pwm_;
+            if (pwm_commands[i] < min_pwm_) pwm_commands[i] = min_pwm_;
         }
         motor_driver_->writeSpeed(pwm_commands);
         return hardware_interface::return_type::OK;
