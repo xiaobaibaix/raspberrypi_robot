@@ -7,6 +7,7 @@ import queue
 import struct
 import serial
 import threading
+import numpy as np
 class PacketControllerState(enum.IntEnum):
     # 通信协议的格式(the format of the communication protocol)
     # 0xAA 0x55 Length Function ID Data Checksum
@@ -127,7 +128,8 @@ class Board:
             PacketFunction.PACKET_FUNC_GAMEPAD: self.packet_report_gamepad,
             PacketFunction.PACKET_FUNC_BUS_SERVO: self.packet_report_serial_servo,
             PacketFunction.PACKET_FUNC_SBUS: self.packet_report_sbus,
-            PacketFunction.PACKET_FUNC_PWM_SERVO: self.packet_report_pwm_servo
+            PacketFunction.PACKET_FUNC_PWM_SERVO: self.packet_report_pwm_servo,
+            PacketFunction.PACKET_FUNC_MOTOR: self.packet_report_pwm_servo,
         }
 
         time.sleep(1.0)
@@ -167,6 +169,7 @@ class Board:
     def packet_report_pwm_servo(self, data):
         try:
             self.pwm_servo_queue.put_nowait(data)
+            print(data.hex(' '))
         except queue.Full:
             pass
 
@@ -370,13 +373,20 @@ class Board:
             data = struct.pack("<BBb", 0x07, servo_id, int(offset))
             self.buf_write(PacketFunction.PACKET_FUNC_PWM_SERVO, data)
 
-    def pwm_servo_read_and_unpack(self, servo_id, cmd, unpack):
+    def pwm_servo_read_and_unpack(self, servo_ids, cmd, unpack):
         with self.servo_read_lock:
-            self.buf_write(PacketFunction.PACKET_FUNC_PWM_SERVO, [cmd, servo_id])
+            self.buf_write(PacketFunction.PACKET_FUNC_MOTOR, [cmd,0x00,0x00,0x04,servo_ids[0], 0x00, servo_ids[1], 0x00, servo_ids[2], 0x00, servo_ids[3], 0x00])
             try:
+                # 得到数据，解包并返回：cmd(1) 0x00 0x00 个数(1) id(1) 数据(2) id(1) 数据(2) id(1) 数据(2) id(1) 数据(2)
                 data = self.pwm_servo_queue.get(block=True, timeout=1.0)
-                servo_id, cmd, info = struct.unpack(unpack, data)
-                return info
+                groups = []
+                # print(data.hex(' '),flush=True)
+                gid1, gval1, gid2, gval2, gid3, gval3, gid4, gval4 = struct.unpack("<BhBhBhBh", data[4:])
+                groups.append((gid1, gval1))
+                groups.append((gid2, gval2))
+                groups.append((gid3, gval3))
+                groups.append((gid4, gval4))
+                return groups
             except queue.Empty:
                 print("PWM舵机响应超时")
                 return None
@@ -384,8 +394,8 @@ class Board:
     def pwm_servo_read_offset(self, servo_id):
         return self.pwm_servo_read_and_unpack(servo_id, 0x09, "<BBb")
 
-    def pwm_servo_read_position(self, servo_id):
-        return self.pwm_servo_read_and_unpack(servo_id, 0x05, "<BBH")
+    def pwm_servo_read_position(self, servo_ids):
+        return self.pwm_servo_read_and_unpack(servo_ids, 0x04, "<BBH")
 
     def bus_servo_enable_torque(self, servo_id, enable):
         if enable:
@@ -479,6 +489,7 @@ class Board:
         while True:
             if self.enable_recv:
                 recv_data = self.port.read()
+                # print(f"Received data: {recv_data.hex(' ')}")
                 if recv_data:
                     for dat in recv_data:
                         #print("%0.2X "%dat)
@@ -512,7 +523,14 @@ class Board:
                             self.frame.append(dat)
                             self.recv_count += 1
                             if self.recv_count >= self.frame[1]:
-                                self.state = PacketControllerState.PACKET_CONTROLLER_STATE_CHECKSUM
+                                # self.state = PacketControllerState.PACKET_CONTROLLER_STATE_CHECKSUM
+                                func = PacketFunction(self.frame[0])
+                                data = bytes(self.frame[2:])
+                                if func in self.parsers:
+                                    self.parsers[func](data)
+                                # else:
+                                #     logger.info("校验失败")
+                                self.state = PacketControllerState.PACKET_CONTROLLER_STATE_STARTBYTE1
                             continue
                         elif self.state == PacketControllerState.PACKET_CONTROLLER_STATE_CHECKSUM:
                             # crc8 = checksum_crc8(bytes(self.frame))
@@ -576,21 +594,34 @@ def pwm_servo_test(board):
     print('offset:', board.pwm_servo_read_offset(servo_id))
     print('position:', board.pwm_servo_read_position(servo_id))
 
-def motor_test(board):
-    board.set_motor_speed([[1, 100], [2, 100], [3, 100], [4, 100]])
-    time.sleep(1)
-    board.set_motor_speed([[1, 0], [2, 0], [3, 0], [4, 0]])
+time_delay = 0.5
+
+def motor_test(board,stop):
+    # board.set_motor_speed([[1, 100], [2, 100], [3, 100], [4, 100]])
+    # time.sleep(1)
+    if stop:
+        board.set_motor_speed([[1, 0], [2, 0], [3, 0], [4, 0]])
+    else:
+        board.set_motor_speed([[1, -30], [2, -30], [3, 30], [4, -30]])
+    time.sleep(time_delay/2)
+    datas=board.pwm_servo_read_position([1, 2, 3, 4])
+    for id, position in datas:
+        print(f"{position} ",end=' ')
+    print()
 
 if __name__ == "__main__":
-    board = Board()
+    board = Board("/dev/ttyUSB0", 115200, 1)
     board.enable_reception()
     
     print("START...")
-
+    stop = False
     while True:
         try:
-            motor_test(board)
-            time.sleep(2)
-            print("new set...\n")
+            motor_test(board,stop)
+            if stop:
+                stop = False
+            else:
+                stop = True
+            time.sleep(time_delay/2)
         except KeyboardInterrupt:
             break

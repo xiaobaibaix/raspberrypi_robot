@@ -12,3 +12,6 @@
 
 # 串口调试的工具
 cutecom  
+
+# plot tool topic data
+/rr_speed_pid/controller_state/dof_states[0]/feedback

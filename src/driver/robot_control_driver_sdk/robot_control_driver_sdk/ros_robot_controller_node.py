@@ -51,6 +51,7 @@ class RosRobotController(Node):
         self.create_subscription(SetBusServoState, '~/bus_servo/set_state', self.set_bus_servo_state, 10)
         self.create_subscription(ServosPosition, '~/bus_servo/set_position', self.set_bus_servo_position, 10)
         self.create_subscription(SetPWMServoState, '~/pwm_servo/set_state', self.set_pwm_servo_state, 10)
+
         self.create_service(GetBusServoState, '~/bus_servo/get_state', self.get_bus_servo_state)
         self.create_service(GetPWMServoState, '~/pwm_servo/get_state', self.get_pwm_servo_state)
         self.create_subscription(RGBStates, '~/set_rgb', self.set_rgb_states, 10)
@@ -65,7 +66,7 @@ class RosRobotController(Node):
         self.board.set_motor_speed([[1, 0], [2, 0], [3, 0], [4, 0]])
 
         self.clock = self.get_clock()
-        threading.Thread(target=self.pub_callback, daemon=True).start()
+        # threading.Thread(target=self.pub_callback, daemon=True).start()
         self.create_service(Trigger, '~/init_finish', self.get_node_state)
         self.get_logger().info('\033[1;32m%s\033[0m' % 'start')
         
@@ -106,11 +107,11 @@ class RosRobotController(Node):
     def pub_callback(self):
         while self.running:
             if getattr(self, 'enable_reception', False):
-                self.pub_button_data(self.button_pub)
-                self.pub_joy_data(self.joy_pub)
-                self.pub_imu_data(self.imu_pub)
-                self.pub_sbus_data(self.sbus_pub)
-                self.pub_battery_data(self.battery_pub)
+                # self.pub_button_data(self.button_pub)
+                # self.pub_joy_data(self.joy_pub)
+                # self.pub_imu_data(self.imu_pub)
+                # self.pub_sbus_data(self.sbus_pub)
+                # self.pub_battery_data(self.battery_pub)
                 time.sleep(0.02)
             else:
                 time.sleep(0.02)
@@ -175,18 +176,16 @@ class RosRobotController(Node):
 
     def get_pwm_servo_state(self, request, response):
         states = response.state
+        ids = []
         for i in request.cmd:
-            data = PWMServoState()
-            data.id.append(i.id)
-            if i.get_position:
-                pwm = self.board.pwm_servo_read_position(i.id)
-                if pwm is not None:
-                    data.position.append(pwm)
-            if i.get_offset != False:
-                offset = self.board.pwm_servo_read_offset(i.id)
-                if offset is not None:
-                    data.offset.append(offset)
-            states.append(data)
+            ids.append(i.id)
+        position = self.board.pwm_servo_read_position(ids)
+        if position is not None:
+            for id, pos in position:
+                data = PWMServoState()
+                data.id.append(id)
+                data.position.append(pos)
+                states.append(data)
         response.state = states
         response.success = True
         return response
@@ -355,11 +354,11 @@ class RosRobotController(Node):
                                           0.0, 0.01, 0.0,
                                           0.0, 0.0, 0.01]
             msg.angular_velocity_covariance = [0.01, 0.0, 0.0,
-                                              0.0, 0.01, 0.0,
-                                              0.0, 0.0, 0.01]
+                                               0.0, 0.01, 0.0,
+                                               0.0, 0.0, 0.01]
             msg.linear_acceleration_covariance = [0.0004, 0.0, 0.0,
-                                                 0.0, 0.0004, 0.0,
-                                                 0.0, 0.0, 0.004]
+                                                  0.0, 0.0004, 0.0,
+                                                  0.0, 0.0, 0.004]
             pub.publish(msg)
 
 def main():

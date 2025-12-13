@@ -11,8 +11,8 @@ from launch.conditions import IfCondition
 from launch.actions import DeclareLaunchArgument
 
 def generate_launch_description():
-    packagepath = get_package_share_directory("robot_car_diff")
-    robot_desc = urdf_util.get_urdf_from_xacro('/'.join([packagepath, 'urdf', 'robot_car.xacro']))
+    packagepath = get_package_share_directory("robot_desc")
+    robot_desc = urdf_util.get_urdf_from_xacro('/'.join([packagepath, 'urdf', 'four_wheel_chassis.xacro']))
 
     return LaunchDescription([
         DeclareLaunchArgument(

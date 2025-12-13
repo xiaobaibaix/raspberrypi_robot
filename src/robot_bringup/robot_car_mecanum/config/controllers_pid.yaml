@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 1  # 保持50Hz，避免Overrun
+    update_rate: 2  # 保持50Hz，避免Overrun
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
@@ -19,8 +19,6 @@ controller_manager:
     mecanum_drive_controller:
       type: mecanum_drive_controller/MecanumDriveController
     
-
-
 fl_speed_pid:
   ros__parameters:
     dof_names:
@@ -33,13 +31,15 @@ fl_speed_pid:
 
     gains:
       left_front_wheel_joint: {
-        "p": 0.25, 
-        "i": 0.01, 
-        "d": 0.0, 
-        "i_clamp_min": -20.0, 
-        "i_clamp_max": 20.0, 
-        "antiwindup": true, 
-        "feedforward_gain": 0.95
+        p: 0.25, 
+        i: 0.02, 
+        d: 0.001, 
+        i_clamp_min: -20.0, 
+        i_clamp_max: 20.0, 
+        u_clamp_min: -255.0,
+        u_clamp_max: 255.0,
+        antiwindup: true, 
+        feedforward_gain: 0.95
       }
 
 fr_speed_pid:
@@ -54,13 +54,15 @@ fr_speed_pid:
 
     gains:
       right_front_wheel_joint: {
-        "p": 0.25, 
-        "i": 0.01, 
-        "d": 0.0, 
-        "i_clamp_min": -20.0, 
-        "i_clamp_max": 20.0, 
-        "antiwindup": true, 
-        "feedforward_gain": 0.95
+        p: 0.25, 
+        i: 0.02, 
+        d: 0.001, 
+        i_clamp_min: -20.0, 
+        i_clamp_max: 20.0, 
+        u_clamp_min: -255.0,
+        u_clamp_max: 255.0,
+        antiwindup: true, 
+        feedforward_gain: 0.95
       }
 
 
@@ -76,13 +78,15 @@ rl_speed_pid:
 
     gains:
       left_rear_wheel_joint: {
-        "p": 0.25, 
-        "i": 0.01, 
-        "d": 0.0, 
-        "i_clamp_min": -20.0, 
-        "i_clamp_max": 20.0, 
-        "antiwindup": true, 
-        "feedforward_gain": 0.95
+        p: 0.25, 
+        i: 0.02, 
+        d: 0.001, 
+        i_clamp_min: -20.0, 
+        i_clamp_max: 20.0, 
+        u_clamp_min: -255.0,
+        u_clamp_max: 255.0,
+        antiwindup: true, 
+        feedforward_gain: 0.95
       }
 
 rr_speed_pid:
@@ -97,13 +101,15 @@ rr_speed_pid:
 
     gains:
       right_rear_wheel_joint: {
-        "p": 0.25, 
-        "i": 0.01, 
-        "d": 0.0, 
-        "i_clamp_min": -20.0, 
-        "i_clamp_max": 20.0, 
-        "antiwindup": true, 
-        "feedforward_gain": 0.95
+        p: 0.25, 
+        i: 0.02, 
+        d: 0.001, 
+        i_clamp_min: -20.0, 
+        i_clamp_max: 20.0, 
+        u_clamp_min: -255.0,
+        u_clamp_max: 255.0,
+        antiwindup: true, 
+        feedforward_gain: 0.95
       }
 
 mecanum_drive_controller:

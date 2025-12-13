@@ -56,8 +56,8 @@ namespace mecanum_wheel_chassis_hw
         double gear_ratio_;
         std::string serial_port_;
         double baud_rate_;
-        int max_pwm_;
-        int min_pwm_;
+        double max_pwm_;
+        double min_pwm_;
 
         std::array<double, 4> max_speed_;
 
