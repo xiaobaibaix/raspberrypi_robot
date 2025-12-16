@@ -72,6 +72,13 @@ def checksum_crc8(data):
         check = crc8_table[check ^ b]
     return check & 0x00FF
 
+def checksum_diff(data):
+    # 差分校验(diff check)
+    check = 0
+    for b in data:
+        check += b
+    return 0xff-(check&0xff)
+
 class SBusStatus:
     def __init__(self):
         self.channels = [0] * 16
@@ -105,7 +112,12 @@ class Board:
         self.port.rts = False
         self.port.dtr = False
         self.port.setPort(device)
-        self.port.open()
+        try:
+            self.port.open()
+        except:
+            print("无法打开串口，尝试重新打开(Unable to open the serial port, try to reopen it)")
+            self.port.setPort("/dev/ttyUSB1")
+            self.port.open()
         time.sleep(1.0)
 
         self.state = PacketControllerState.PACKET_CONTROLLER_STATE_STARTBYTE1
@@ -113,13 +125,13 @@ class Board:
         self.pwm_servo_read_lock = threading.Lock()
 
         # 队列用来存储数据(use queue to store data)
-        self.sys_queue = queue.Queue(maxsize=10)
-        self.bus_servo_queue = queue.Queue(maxsize=10)
-        self.pwm_servo_queue = queue.Queue(maxsize=10)
-        self.key_queue = queue.Queue(maxsize=10)
-        self.imu_queue = queue.Queue(maxsize=10)
-        self.gamepad_queue = queue.Queue(maxsize=10)
-        self.sbus_queue = queue.Queue(maxsize=10)
+        self.sys_queue          = queue.Queue(maxsize=10)
+        self.bus_servo_queue    = queue.Queue(maxsize=10)
+        self.pwm_servo_queue    = queue.Queue(maxsize=10)
+        self.key_queue          = queue.Queue(maxsize=10)
+        self.imu_queue          = queue.Queue(maxsize=10)
+        self.gamepad_queue      = queue.Queue(maxsize=10)
+        self.sbus_queue         = queue.Queue(maxsize=10)
 
         self.parsers = {
             PacketFunction.PACKET_FUNC_SYS: self.packet_report_sys,
@@ -169,7 +181,6 @@ class Board:
     def packet_report_pwm_servo(self, data):
         try:
             self.pwm_servo_queue.put_nowait(data)
-            print(data.hex(' '))
         except queue.Full:
             pass
 
@@ -323,8 +334,9 @@ class Board:
 
     def buf_write(self, func, data):
         buf = [0xAA, 0x55, int(func)]
-        buf.append(len(data))
+        buf.append(len(data)+1)
         buf.extend(data)
+        buf.append(checksum_diff(bytes(buf[2:])))
         #buf.append(checksum_crc8(bytes(buf[2:])))
         buf = bytes(buf)
         # print(' '.join(f'{b:02X}' for b in buf),flush=True)
@@ -342,7 +354,7 @@ class Board:
         self.buf_write(PacketFunction.PACKET_FUNC_BUZZER, struct.pack("<HHHH", freq, on_time, off_time, repeat))
 
     def set_motor_speed(self, speeds):
-        data = [0x01,0x0a,0x00,len(speeds)]
+        data = [0x01,len(speeds)]
         for idx, vel in speeds:
             data.extend(struct.pack('<Bh', int(idx), int(vel)))
         self.buf_write(PacketFunction.PACKET_FUNC_MOTOR, data)
@@ -375,13 +387,23 @@ class Board:
 
     def pwm_servo_read_and_unpack(self, servo_ids, cmd, unpack):
         with self.servo_read_lock:
-            self.buf_write(PacketFunction.PACKET_FUNC_MOTOR, [cmd,0x00,0x00,0x04,servo_ids[0], 0x00, servo_ids[1], 0x00, servo_ids[2], 0x00, servo_ids[3], 0x00])
+            # self.buf_write(PacketFunction.PACKET_FUNC_MOTOR, 
+            #                [cmd,0x00,0x00,0x04,
+            #                 servo_ids[0], 0x00,0x00, 
+            #                 servo_ids[1], 0x00,0x00, 
+            #                 servo_ids[2], 0x00,0x00, 
+            #                 servo_ids[3], 0x00,0x00])
+            self.buf_write(PacketFunction.PACKET_FUNC_MOTOR, 
+                           [cmd,0x04,
+                            servo_ids[0], 0x00,0x00, 
+                            servo_ids[1], 0x00,0x00, 
+                            servo_ids[2], 0x00,0x00, 
+                            servo_ids[3], 0x00,0x00])
             try:
-                # 得到数据，解包并返回：cmd(1) 0x00 0x00 个数(1) id(1) 数据(2) id(1) 数据(2) id(1) 数据(2) id(1) 数据(2)
+                # 得到数据，解包并返回：cmd(1) 个数(1) id(1) 数据(4) id(1) 数据(4) id(1) 数据(4) id(1) 数据(4)
                 data = self.pwm_servo_queue.get(block=True, timeout=1.0)
                 groups = []
-                # print(data.hex(' '),flush=True)
-                gid1, gval1, gid2, gval2, gid3, gval3, gid4, gval4 = struct.unpack("<BhBhBhBh", data[4:])
+                gid1,gval1,gid2,gval2,gid3,gval3,gid4,gval4,=struct.unpack(unpack, data[2:])
                 groups.append((gid1, gval1))
                 groups.append((gid2, gval2))
                 groups.append((gid3, gval3))
@@ -395,7 +417,7 @@ class Board:
         return self.pwm_servo_read_and_unpack(servo_id, 0x09, "<BBb")
 
     def pwm_servo_read_position(self, servo_ids):
-        return self.pwm_servo_read_and_unpack(servo_ids, 0x04, "<BBH")
+        return self.pwm_servo_read_and_unpack(servo_ids, 0x04, "<BiBiBiBi")
 
     def bus_servo_enable_torque(self, servo_id, enable):
         if enable:
@@ -489,10 +511,8 @@ class Board:
         while True:
             if self.enable_recv:
                 recv_data = self.port.read()
-                # print(f"Received data: {recv_data.hex(' ')}")
                 if recv_data:
                     for dat in recv_data:
-                        #print("%0.2X "%dat)
                         if self.state == PacketControllerState.PACKET_CONTROLLER_STATE_STARTBYTE1:
                             if dat == 0xAA:
                                 self.state = PacketControllerState.PACKET_CONTROLLER_STATE_STARTBYTE2
@@ -522,25 +542,23 @@ class Board:
                         elif self.state == PacketControllerState.PACKET_CONTROLLER_STATE_DATA:
                             self.frame.append(dat)
                             self.recv_count += 1
-                            if self.recv_count >= self.frame[1]:
-                                # self.state = PacketControllerState.PACKET_CONTROLLER_STATE_CHECKSUM
-                                func = PacketFunction(self.frame[0])
-                                data = bytes(self.frame[2:])
-                                if func in self.parsers:
-                                    self.parsers[func](data)
-                                # else:
-                                #     logger.info("校验失败")
-                                self.state = PacketControllerState.PACKET_CONTROLLER_STATE_STARTBYTE1
+                            if self.recv_count >= self.frame[1]-1:# 减去校验位( minus checksum byte)
+                                self.state = PacketControllerState.PACKET_CONTROLLER_STATE_CHECKSUM
                             continue
                         elif self.state == PacketControllerState.PACKET_CONTROLLER_STATE_CHECKSUM:
-                            # crc8 = checksum_crc8(bytes(self.frame))
-                            # if crc8 == dat:
+                            ck = checksum_diff(bytes(self.frame))
+                            if(ck != dat):
+                                print("校验失败: ", end='')
+                                print(' '.join(f'{b:02X}' for b in self.frame),flush=True)
+                                self.state = PacketControllerState.PACKET_CONTROLLER_STATE_STARTBYTE1
+                                continue
                             func = PacketFunction(self.frame[0])
                             data = bytes(self.frame[2:])
                             if func in self.parsers:
                                 self.parsers[func](data)
-                            # else:
-                            #     logger.info("校验失败")
+                            else:
+                                print("接收函数不在范围：", end='')
+                                print(' '.join(f'{b:02X}' for b in self.frame),flush=True)
                             self.state = PacketControllerState.PACKET_CONTROLLER_STATE_STARTBYTE1
                             continue
             else:

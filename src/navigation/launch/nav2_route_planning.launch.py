@@ -9,6 +9,7 @@ def generate_launch_description():
     bt_navigator_yaml = os.path.join(get_package_share_directory('navigation'), 'config', 'bt_navigator.yaml')
     planner_yaml = os.path.join(get_package_share_directory('navigation'), 'config', 'planner_server.yaml')
     recovery_yaml = os.path.join(get_package_share_directory('navigation'), 'config', 'recovery.yaml')
+    smoother_yaml = os.path.join(get_package_share_directory('navigation'), 'config', 'smoother.yaml')
 
     
     return LaunchDescription([     
@@ -19,7 +20,7 @@ def generate_launch_description():
             output='screen',
             parameters=[controller_yaml],
             remappings=[
-                ('/cmd_vel', '/mecanum_controller/cmd_vel_unstamped')  # 全局名称要写全 /
+                ('/cmd_vel', '/nav2_controller_raw_cmd')  # 全局名称要写全 /
             ],
         ),
 
@@ -36,7 +37,7 @@ def generate_launch_description():
             name='behavior_server',
             parameters=[recovery_yaml],
             remappings=[
-                ('/cmd_vel', '/mecanum_controller/cmd_vel')  # 全局名称要写全 /
+                ('/cmd_vel', '/nav2_controller_raw_cmd')  # 全局名称要写全 /
             ],
             output='screen'),
 
@@ -48,6 +49,28 @@ def generate_launch_description():
             parameters=[bt_navigator_yaml]),
 
         Node(
+            package='nav2_smoother',
+            executable='smoother_server',
+            name='smoother_server',
+            output='screen',
+            parameters=[smoother_yaml],   # 你的 yaml 里已经包含 smoother_server 段
+        ),
+
+        Node(
+            package='nav2_velocity_smoother',
+            executable='velocity_smoother',
+            name='velocity_smoother',
+            output='screen',
+            parameters=[smoother_yaml,
+                        {'use_stamped_vel': True},        # 启用 stamped 输出
+                        {'velocity_frame_id': 'base_link'}],  # header.frame_id
+            remappings=[
+                ('/cmd_vel_in',  '/nav2_controller_raw_cmd'),      # Twist 输入
+                ('/cmd_vel_smooth_stamped', '/mecanum_drive_controller/reference')  # TwistStamped 输出
+            ],
+        ),
+
+        Node(
             package='nav2_lifecycle_manager',
             executable='lifecycle_manager',
             name='lifecycle_manager_pathplanner',
@@ -56,5 +79,7 @@ def generate_launch_description():
                         {'node_names': ['planner_server',
                                         'controller_server',
                                         'behavior_server',
-                                        'bt_navigator']}])
+                                        'bt_navigator',
+                                        'smoother_server',
+                                        'velocity_smoother']}],)
     ])

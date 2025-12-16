@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 2  # 保持50Hz，避免Overrun
+    update_rate: 20  # 保持50Hz，避免Overrun
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
@@ -31,11 +31,11 @@ fl_speed_pid:
 
     gains:
       left_front_wheel_joint: {
-        p: 0.25, 
-        i: 0.02, 
-        d: 0.001, 
-        i_clamp_min: -20.0, 
-        i_clamp_max: 20.0, 
+        p: 11.5, 
+        i: 30.0, 
+        d: 0.035, 
+        i_clamp_min: -120.0, 
+        i_clamp_max: 120.0, 
         u_clamp_min: -255.0,
         u_clamp_max: 255.0,
         antiwindup: true, 
@@ -54,11 +54,11 @@ fr_speed_pid:
 
     gains:
       right_front_wheel_joint: {
-        p: 0.25, 
-        i: 0.02, 
-        d: 0.001, 
-        i_clamp_min: -20.0, 
-        i_clamp_max: 20.0, 
+        p: 11.5, 
+        i: 30.0, 
+        d: 0.035, 
+        i_clamp_min: -120.0, 
+        i_clamp_max: 120.0, 
         u_clamp_min: -255.0,
         u_clamp_max: 255.0,
         antiwindup: true, 
@@ -78,11 +78,11 @@ rl_speed_pid:
 
     gains:
       left_rear_wheel_joint: {
-        p: 0.25, 
-        i: 0.02, 
-        d: 0.001, 
-        i_clamp_min: -20.0, 
-        i_clamp_max: 20.0, 
+        p: 11.5, 
+        i: 30.0, 
+        d: 0.035, 
+        i_clamp_min: -120.0, 
+        i_clamp_max: 120.0, 
         u_clamp_min: -255.0,
         u_clamp_max: 255.0,
         antiwindup: true, 
@@ -101,11 +101,11 @@ rr_speed_pid:
 
     gains:
       right_rear_wheel_joint: {
-        p: 0.25, 
-        i: 0.02, 
-        d: 0.001, 
-        i_clamp_min: -20.0, 
-        i_clamp_max: 20.0, 
+        p: 11.5, 
+        i: 30.0, 
+        d: 0.035, 
+        i_clamp_min: -120.0, 
+        i_clamp_max: 120.0, 
         u_clamp_min: -255.0,
         u_clamp_max: 255.0,
         antiwindup: true, 

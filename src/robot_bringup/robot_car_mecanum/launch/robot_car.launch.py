@@ -40,7 +40,7 @@ def generate_launch_description():
                 os.path.join(
                     robot_path,
                     'launch',
-                    'robot_ros2_control.launch.py'
+                    'robot_ros2_control_pid.launch.py'
                 ),
             ])
         )
@@ -52,7 +52,19 @@ def generate_launch_description():
                 os.path.join(
                     robot_path,
                     'launch',
-                    'ekf.launch.py'
+                    'robot_ekf.launch.py'
+                ),
+            ])
+        )
+    )
+
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                os.path.join(
+                    robot_path,
+                    'launch',
+                    'robot_rviz2.launch.py'
                 ),
             ])
         )

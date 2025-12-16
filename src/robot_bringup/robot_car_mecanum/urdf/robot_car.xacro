@@ -8,7 +8,7 @@
       <plugin>mecanum_wheel_chassis_hw/MecanumWheelChassisHW</plugin>
       <param name="serial_port">/dev/ttyUSB0</param>
       <param name="baud_rate">115200</param>
-      <param name="encoder_ppr">210.0</param>
+      <param name="encoder_ppr">780.0</param>
       <param name="wheel_radius">0.03</param>
       <param name="gear_ratio">1</param>
       <param name="max_pwm">200</param>

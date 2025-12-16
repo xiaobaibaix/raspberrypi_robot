@@ -18,8 +18,8 @@ namespace mecanum_wheel_chassis_hw
                     "没有硬件参数，使用默认值");
         }
         
-        serial_port_ = "/dev/ttyUSB0";  // 默认值
-        baud_rate_ = 115200;               // 默认值
+        serial_port_ = "/dev/ttyUSB0";      // 默认值
+        baud_rate_ = 115200;                // 默认值
         
         if (info_.hardware_parameters.find("serial_port") != info_.hardware_parameters.end()) {
             serial_port_ = info_.hardware_parameters.at("serial_port");
@@ -254,10 +254,6 @@ namespace mecanum_wheel_chassis_hw
         const rclcpp::Time & time, const rclcpp::Duration & period)
     {
         (void)time;
-        // RCLCPP_INFO(rclcpp::get_logger("MecanumWheelChassisHW"), 
-        //     "use_topic_: %s, use_server_: %s",
-        //     use_topic_ ? "true" : "false",
-        //     use_server_ ? "true" : "false");
         if(use_topic_&&use_server_){
             //请求
             auto req = std::make_shared<robot_msgs::srv::GetPWMServoState::Request>();
@@ -282,9 +278,7 @@ namespace mecanum_wheel_chassis_hw
             m4.get_offset   = 0; // 不获取偏移
             req->cmd.push_back(m4);
             auto future = pos_cli_->async_send_request(req);
-            // RCLCPP_INFO(rclcpp::get_logger("MecanumWheelChassisHW"), 
-            //             "Requesting motor positions from service.");
-            if (rclcpp::spin_until_future_complete(node_, future, std::chrono::seconds(2))
+            if (rclcpp::spin_until_future_complete(node_, future, std::chrono::seconds(1))
                 == rclcpp::FutureReturnCode::SUCCESS)
             {
                 auto resp = future.get();
@@ -306,23 +300,19 @@ namespace mecanum_wheel_chassis_hw
                                 "One of the motor position data is empty.");
                     return hardware_interface::return_type::OK;
                 }
-                int dencode[4]={-resp->state[0].position.front(),
-                                resp->state[1].position.front(),
-                                -resp->state[2].position.front(),
-                                resp->state[3].position.front()};
-                
 
-                // 遍历返回的 state 数组
                 for (size_t i = 0; i < hw_positions_.size(); ++i)
                 {
                     // 计算轮子角度
-                    double wheel_angle = (dencode[i] / encoder_ppr_) * 2.0 * M_PI / gear_ratio_;
+                    double wheel_angle = (resp->state[i].position.front() / encoder_ppr_) * 2.0 * M_PI / gear_ratio_;
                     hw_velocities_[i] = (wheel_angle - hw_positions_[i]) / period.seconds();
                     hw_positions_[i] = wheel_angle;
                     // RCLCPP_INFO(rclcpp::get_logger("MecanumWheelChassisHW"), 
-                    //     "speed:%f position:%f encode:%d",hw_velocities_[i],hw_positions_[i],dencode[i]);
+                    //     "speed:%f position:%f encode:%d",
+                    //     hw_velocities_[i],
+                    //     hw_positions_[i],
+                    //     resp->state[i].position.front());
                 }
-
 
             }else{
                 RCLCPP_ERROR(rclcpp::get_logger("MecanumWheelChassisHW"), 
@@ -346,9 +336,6 @@ namespace mecanum_wheel_chassis_hw
                 hw_positions_[i] = wheel_angle;
             }
         }else{
-            // 读取编码器值
-            // RCLCPP_INFO(rclcpp::get_logger("MecanumWheelChassisHW"), 
-            //             "Reading motor positions directly from MecanumMotorDriver.");
             auto encoders = motor_driver_->readEncoder();
             for (size_t i = 0; i < hw_positions_.size(); ++i)
             {   
@@ -368,29 +355,16 @@ namespace mecanum_wheel_chassis_hw
     {
         (void)time;
         (void)period;
-        double hw_commands_tmp[4]={0};
-        for (size_t i = 0; i < hw_commands_.size(); ++i)
-        {
-            hw_commands_tmp[i] = std::clamp(hw_commands_[i] * 30.0, -max_pwm_, max_pwm_);   // 限幅
-            if (std::fabs(hw_commands_tmp[i]) < min_pwm_) hw_commands_tmp[i] = 0.0;         // 死区
-
-            // RCLCPP_INFO(rclcpp::get_logger("MecanumWheelChassisHW"), 
-            //     "Published motor commands via topic: [(%f,%f)(%f)]",
-            //     max_pwm_, min_pwm_,
-            //     hw_commands_tmp[i]);
-        }
-        //修正
-        hw_commands_tmp[0] *=-1; // 左前轮反向 
-        hw_commands_tmp[2] *=-1; // 左前轮反向 
-
         if(use_topic_){
+            // 限制输出
+
             // topic 发送指令
             cmd_pub_->publish(robot_msgs::msg::MotorsState(
                 robot_msgs::msg::MotorsState().set__data({
-                    robot_msgs::msg::MotorState().set__id(1).set__rps(static_cast<int16_t>(hw_commands_tmp[0])),
-                    robot_msgs::msg::MotorState().set__id(2).set__rps(static_cast<int16_t>(hw_commands_tmp[1])),
-                    robot_msgs::msg::MotorState().set__id(3).set__rps(static_cast<int16_t>(hw_commands_tmp[2])),
-                    robot_msgs::msg::MotorState().set__id(4).set__rps(static_cast<int16_t>(hw_commands_tmp[3])),
+                    robot_msgs::msg::MotorState().set__id(1).set__rps(static_cast<int16_t>(hw_commands_[0])),
+                    robot_msgs::msg::MotorState().set__id(2).set__rps(static_cast<int16_t>(hw_commands_[1])),
+                    robot_msgs::msg::MotorState().set__id(3).set__rps(static_cast<int16_t>(hw_commands_[2])),
+                    robot_msgs::msg::MotorState().set__id(4).set__rps(static_cast<int16_t>(hw_commands_[3])),
                 })
             ));
             // RCLCPP_INFO(rclcpp::get_logger("MecanumWheelChassisHW"), 
@@ -401,13 +375,7 @@ namespace mecanum_wheel_chassis_hw
             std::array<int16_t, 4> pwm_commands={0};
             for (size_t i = 0; i < hw_commands_.size(); ++i)
             {
-                pwm_commands[i] = static_cast<int16_t>(hw_commands_tmp[i]); // 简单线性映射，实际应用中可能需要更复杂的转换
-                // RCLCPP_INFO(rclcpp::get_logger("MecanumWheelChassisHW"), 
-                // "cmd:%f pwm:%d",hw_commands_[i],pwm_commands[i]);
-                // if (pwm_commands[i] > max_pwm_) pwm_commands[i] = max_pwm_;
-                // if (pwm_commands[i] < min_pwm_) pwm_commands[i] = min_pwm_;
-                // RCLCPP_INFO(rclcpp::get_logger("MecanumWheelChassisHW"), 
-                // "cmd:%f pwm:%d",hw_commands_[i],pwm_commands[i]);
+                pwm_commands[i] = static_cast<int16_t>(hw_commands_[i]); // 简单线性映射，实际应用中可能需要更复杂的转换
             }
             motor_driver_->writeSpeed(pwm_commands);
         }
