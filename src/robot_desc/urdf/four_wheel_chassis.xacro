@@ -26,7 +26,7 @@
 
   <xacro:property name="imu_width" value="0.02"/>
   <xacro:property name="imu_length" value="0.02"/>
-  <xacro:property name="imu_height" value="0.02"/>
+  <xacro:property name="imu_height" value="0.01"/>
   <xacro:property name="imu_mass" value="0.01"/>
   <xacro:property name="imu_offset_x" value="0.0"/>
   <xacro:property name="imu_offset_y" value="0.0"/>

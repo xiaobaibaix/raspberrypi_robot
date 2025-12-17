@@ -18,6 +18,16 @@ controller_manager:
 
     mecanum_drive_controller:
       type: mecanum_drive_controller/MecanumDriveController
+
+    mecanum_x_position_pid:
+      type: pid_controller/PidController
+    mecanum_y_position_pid:
+      type: pid_controller/PidController
+    mecanum_z_angle_pid:
+      type: pid_controller/PidController
+
+    position_tracking_controller:
+      type: position_tracking_controller/PositionTrackingController
     
 fl_speed_pid:
   ros__parameters:
@@ -128,7 +138,7 @@ mecanum_drive_controller:
     kinematics:
       base_frame_offset: { x: 0.0, y: 0.0, theta: 0.0 }
       wheels_radius: 0.03
-      sum_of_robot_center_projection_on_X_Y_axis: 0.569
+      sum_of_robot_center_projection_on_X_Y_axis: 0.2865  # 0.2845
 
     base_frame_id: "base_footprint"
     odom_frame_id: "odom"
@@ -144,3 +154,75 @@ imu_sensor_broadcaster:
     orientation_covariance: [0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001]
     angular_velocity_covariance: [0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001]
     linear_acceleration_covariance: [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
+
+mecanum_x_position_pid:
+  ros__parameters:
+    dof_names:
+      - mecanum_drive_controller/linear/x
+
+    command_interface: velocity
+
+    reference_and_state_interfaces:
+      - position
+    use_external_measured_states: true # 外部话题作为反馈
+
+    gains:
+      mecanum_drive_controller/linear/x: {
+        p: 11.5, 
+        i: 30.0, 
+        d: 0.035, 
+        i_clamp_min: -120.0, 
+        i_clamp_max: 120.0, 
+        u_clamp_min: -255.0,
+        u_clamp_max: 255.0,
+        antiwindup: true, 
+        feedforward_gain: 0.95
+      }
+
+mecanum_y_position_pid:
+  ros__parameters:
+    dof_names:
+      - mecanum_drive_controller/linear/y
+    
+    command_interface: velocity
+
+    reference_and_state_interfaces:
+      - position
+    use_external_measured_states: true # 外部话题作为反馈
+
+    gains:
+      mecanum_drive_controller/linear/y: {
+        p: 11.5, 
+        i: 30.0, 
+        d: 0.035, 
+        i_clamp_min: -120.0, 
+        i_clamp_max: 120.0, 
+        u_clamp_min: -255.0,
+        u_clamp_max: 255.0,
+        antiwindup: true, 
+        feedforward_gain: 0.95
+      }
+
+mecanum_z_angle_pid:
+  ros__parameters:
+    dof_names:
+      - mecanum_drive_controller/angular/z
+
+    command_interface: velocity
+
+    reference_and_state_interfaces:
+      - position
+    use_external_measured_states: true # 外部话题作为反馈
+
+    gains:
+      mecanum_drive_controller/angular/z: {
+        p: 11.5, 
+        i: 30.0, 
+        d: 0.035, 
+        i_clamp_min: -120.0, 
+        i_clamp_max: 120.0, 
+        u_clamp_min: -255.0,
+        u_clamp_max: 255.0,
+        antiwindup: true, 
+        feedforward_gain: 0.95
+      }

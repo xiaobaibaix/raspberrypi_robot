@@ -81,7 +81,6 @@ def generate_launch_description():
         parameters=[{'use_sim_time': False}]
     )
 
-
     ld.add_action(RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=jspawner,
@@ -99,5 +98,41 @@ def generate_launch_description():
             ]
         )
     ))
+
+    pid_tack_spawner = Node(
+        package='controller_manager',
+        executable='spawner', 
+        arguments=['mecanum_x_position_pid','mecanum_y_position_pid','mecanum_z_angle_pid'],
+        output='both',
+        prefix='',
+    )
+
+    position_tack_spawner = Node(
+        package='controller_manager',
+        executable='spawner', 
+        arguments=['position_tracking_controller'],
+        output='both',
+        prefix='',
+    )
+
+    ld.add_action(RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=mecaspawner,
+            on_exit=[
+                pid_tack_spawner,
+            ]
+        )
+    ))
+
+    ld.add_action(RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=pid_tack_spawner,
+            on_exit=[
+                position_tack_spawner
+            ]
+        )
+    ))
+
+
 
     return ld

@@ -23,7 +23,7 @@ class MecanumKeyboardControl(Node):
 
         # ---------------- 运动参数 ----------------
         self.linear_speed  = 0.3
-        self.angular_speed = 0.5
+        self.angular_speed = 0.8
         self.strafe_speed  = 0.3
 
         # ---------------- 终端检测 ----------------
