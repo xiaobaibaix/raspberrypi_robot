@@ -6,11 +6,24 @@ from ament_index_python.packages import get_package_share_directory
 from launch.actions import RegisterEventHandler, TimerAction
 from launch.event_handlers import OnProcessExit, OnProcessStart
 import os
+from launch.actions import RegisterEventHandler, DeclareLaunchArgument
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration
+from launch.actions import IncludeLaunchDescription, ExecuteProcess, RegisterEventHandler, TimerAction
+from launch.event_handlers import OnProcessExit, OnProcessStart
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+
 
 def generate_launch_description():
     ld = LaunchDescription()
 
     pkg = get_package_share_directory('robot_car_mecanum')
+
+    ld.add_action(DeclareLaunchArgument(
+        'start_position_ctrl',
+        default_value='false',
+        description='open position_tracking_controller')
+    )
 
     # 加载机器人描述文件
     robot_state_publisher = Node(
@@ -21,6 +34,8 @@ def generate_launch_description():
                 Command(['xacro ', os.path.join(pkg, 'urdf', 'robot_car.xacro')]),
                 value_type=str
             ),
+            # 添加 use_sim_time 参数以避免警告
+            'use_sim_time': False,
         }],
         output='both'
     )
@@ -32,65 +47,117 @@ def generate_launch_description():
         executable='ros2_control_node',
         parameters=[
             os.path.join(pkg, 'config', 'controllers.yaml'),
-            {'use_realtime': False},   # 关闭实时调度
-            {'lock_memory': False},    # 关闭内存锁定
+            # 添加 use_sim_time 参数
+            {'use_sim_time': False},
         ],
         output='both',
     )
     ld.add_action(controller_manager)
 
-    # ② 硬件相关控制器（ spawner 可远程，但这里放本地也可）
-    jspawner   = Node(
+    # 使用更可靠的事件处理方式
+    jspawner = Node(
         package='controller_manager', 
         executable='spawner', 
         arguments=['joint_state_broadcaster'],
-        output='both'
-        )
+        output='both',
+        # 添加前缀避免命名空间问题
+        prefix='',
+    )
 
-    mecaspawner= Node(
-        package='controller_manager',
-        executable='spawner', 
-        arguments=['mecanum_controller'],
-        output='both'
-        )
     imuspawner = Node(
         package='controller_manager', 
         executable='spawner', 
         arguments=['imu_sensor_broadcaster'],
-        output='both'
-        )
-    # laserspawner = Node(
-    #     package='controller_manager', 
-    #     executable='spawner', 
-    #     arguments=['laser_broadcaster'],
-    #     output='both'
-    #     )
+        output='both',
+        prefix='',
+    )
+
+    ld.add_action(jspawner) 
+    ld.add_action(imuspawner)
+
+    # PID控制器按顺序启动而不是同时启动
+    pid_spawner = Node(
+        package='controller_manager',
+        executable='spawner', 
+        arguments=['fl_speed_pid','fr_speed_pid','rl_speed_pid','rr_speed_pid'],
+        output='both',
+        prefix='',
+    )
     
+    mecaspawner = Node(
+        package='controller_manager',
+        executable='spawner', 
+        arguments=['mecanum_drive_controller'],
+        output='both',
+        prefix='',
+        # 为麦克纳姆控制器添加额外参数
+        parameters=[{'use_sim_time': False}]
+    )
+
+    ld.add_action(
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(
+                    pkg,
+                    'launch',
+                    'robot_ekf.launch.py'
+                ),
+            )
+        )
+    )
+
     ld.add_action(RegisterEventHandler(
-        event_handler=OnProcessStart(
-            target_action=controller_manager,
-            on_start=[
-                jspawner
+        event_handler=OnProcessExit(
+            target_action=jspawner,
+            on_exit=[
+                pid_spawner
             ]
         )
     ))
 
     ld.add_action(RegisterEventHandler(
         event_handler=OnProcessExit(
-            target_action=jspawner,
+            target_action=pid_spawner,
             on_exit=[
                 mecaspawner
             ]
         )
     ))
 
+    pid_tack_spawner = Node(
+        package='controller_manager',
+        executable='spawner', 
+        arguments=['mecanum_x_position_pid','mecanum_y_position_pid','mecanum_z_angle_pid'],
+        output='both',
+        prefix='',
+    )
+
+    position_tack_spawner = Node(
+        package='controller_manager',
+        executable='spawner', 
+        arguments=['position_tracking_controller'],
+        output='both',
+        prefix='',
+    )
+
     ld.add_action(RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=mecaspawner,
             on_exit=[
-                imuspawner
+                pid_tack_spawner,
             ]
-        )
+        ),
+        condition=IfCondition(LaunchConfiguration('start_position_ctrl'))
+    ))
+
+    ld.add_action(RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=pid_tack_spawner,
+            on_exit=[
+                position_tack_spawner
+            ]
+        ),
+        condition=IfCondition(LaunchConfiguration('start_position_ctrl'))
     ))
 
     return ld
