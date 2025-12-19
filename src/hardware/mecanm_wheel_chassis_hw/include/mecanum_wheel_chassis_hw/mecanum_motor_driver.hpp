@@ -19,22 +19,21 @@
 class MecanumMotorDriver
 {
 public:
-    explicit MecanumMotorDriver(const std::string & device_name,uint32_t baud = 115200);
+    explicit MecanumMotorDriver(const std::string &device_name, uint32_t baud = 115200);
     ~MecanumMotorDriver();
 
-    void writeSpeed(const std::array<int16_t, 4> & pwm);
+    void writeSpeed(const std::array<int16_t, 4> &pwm);
     std::array<int32_t, 4> readEncoder();
-
 
 private:
     void readThreadFunc();
-    std::vector<uint8_t> buildWriteFrame(const std::array<int16_t, 4> & pwm);
+    std::vector<uint8_t> buildWriteFrame(const std::array<int16_t, 4> &pwm);
     std::vector<uint8_t> buildReadFrame();
-    bool waitForEncoder(std::array<int32_t, 4> & enc,std::chrono::milliseconds timeout);
-    static uint8_t crc8(const std::vector<uint8_t> & data, size_t len);
+    bool waitForEncoder(std::array<int32_t, 4> &enc, std::chrono::milliseconds timeout);
+    static uint8_t crc8(const std::vector<uint8_t> &data, size_t len);
 
     /* 成员变量 */
-    drivers::common::IoContext io_ctx_;  // 使用完整的命名空间
+    drivers::common::IoContext io_ctx_; // 使用完整的命名空间
     drivers::serial_driver::SerialDriver driver_;
     std::shared_ptr<drivers::serial_driver::SerialPort> port_;
 

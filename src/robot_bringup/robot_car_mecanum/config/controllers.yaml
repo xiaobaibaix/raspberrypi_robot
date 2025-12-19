@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 20  # 保持50Hz，避免Overrun
+    update_rate: 20 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
@@ -19,15 +19,15 @@ controller_manager:
     mecanum_drive_controller:
       type: mecanum_drive_controller/MecanumDriveController
 
-    # mecanum_x_position_pid:
-    #   type: pid_controller/PidController
-    # mecanum_y_position_pid:
-    #   type: pid_controller/PidController
-    # mecanum_z_angle_pid:
-    #   type: pid_controller/PidController
+    mecanum_x_position_pid:
+      type: pid_controller/PidController
+    mecanum_y_position_pid:
+      type: pid_controller/PidController
+    mecanum_z_angle_pid:
+      type: pid_controller/PidController
 
-    # position_tracking_controller:
-    #   type: position_tracking_controller/PositionTrackingController
+    position_tracking_controller:
+      type: position_tracking_controller/PositionTrackingController
     
 fl_speed_pid:
   ros__parameters:
@@ -144,15 +144,15 @@ mecanum_drive_controller:
     base_frame_id: "base_footprint"
     odom_frame_id: "odom"
     enable_odom_tf: false
-    pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
-    twist_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.001]
+    pose_covariance_diagonal: [0.01, 0.01, 0.02, 0.03, 0.03, 0.05]  # X,Y,Z,roll,pitch,yaw
+    twist_covariance_diagonal: [0.01, 0.01, 0.01, 0.02, 0.02, 0.03]
 
 # IMU广播器
 imu_sensor_broadcaster:
   ros__parameters:
     sensor_name: "mpu6050"
     frame_id: "imu"
-    static_covariance_orientation: [0.0001, 0.0, 0.0, 0.0, 0.0001, 0.0, 0.0, 0.0, 0.0001]
+    static_covariance_orientation: [0.02, 0.0, 0.0, 0.0, 0.02, 0.0, 0.0, 0.0, 0.15]  # yaw 更不可信
     static_covariance_angular_velocity: [0.0004, 0.0, 0.0, 0.0, 0.0004, 0.0, 0.0, 0.0, 0.0004]
     static_covariance_linear_acceleration: [0.0004, 0.0, 0.0, 0.0, 0.0004, 0.0, 0.0, 0.0, 0.0004]
 
@@ -170,7 +170,7 @@ mecanum_x_position_pid:
 
     gains:
       mecanum_drive_controller/linear/x: {
-        p: 1.0, 
+        p: 1.0,
         i: 0.0, 
         d: 0.0, 
         i_clamp_min: -4.0, 
@@ -220,13 +220,13 @@ mecanum_z_angle_pid:
 
     gains:
       mecanum_drive_controller/angular/z: {
-        p: 0.1,  
+        p: 1.0,  
         i: 0.0, 
         d: 0.0, 
         i_clamp_min: -4.0, 
         i_clamp_max: 4.0, 
         u_clamp_min: -0.5,
         u_clamp_max: 0.5,
-        antiwindup: true, 
+        antiwindup: false, 
         feedforward_gain: 0.95
       }

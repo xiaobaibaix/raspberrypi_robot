@@ -12,7 +12,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name+'/config', glob("config/*.yaml")),
-        ('share/' + package_name+'/config', glob("config/*.rviz")),
+        ('share/' + package_name+'/rviz', glob("rviz/*.rviz")),
         ('share/' + package_name+'/launch', glob("launch/*.py")),
         ('share/' + package_name+'/urdf', glob("urdf/*.xacro")),
         ('share/' + package_name+'/maps', glob("maps/*.yaml")),
@@ -31,6 +31,7 @@ setup(
     entry_points={
         'console_scripts': [
             "key_control=robot_car_mecanum.key_control:main",
+            "position_control=robot_car_mecanum.position_control:main",
         ],
     },
 )

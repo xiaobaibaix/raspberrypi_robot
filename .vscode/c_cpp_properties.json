@@ -4,6 +4,9 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
+                "/home/ubuntu/workspace/SDK_V3.0-master/include/**",
+                "/home/ubuntu/workspace/SDK_V3.0-master/src/base/**",
+                "/home/ubuntu/workspace/YDLidar-SDK/src/",
                 "/opt/ros/jazzy/include/**",
                 "/usr/include/**"
             ],

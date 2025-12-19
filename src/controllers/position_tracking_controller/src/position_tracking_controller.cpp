@@ -238,11 +238,13 @@ namespace position_tracking_controller
         const std::shared_ptr<GoalHandle>)
     {
         std::cout << "Goal cancel request received." << std::endl;
+        auto current_pose = current_pose_.readFromRT();
+
+        target_pose_.writeFromNonRT(*current_pose); // 取消时把目标设为当前位置
         return rclcpp_action::CancelResponse::ACCEPT;
     }
 
-    void
-    PositionTrackingController::handle_accepted(
+    void PositionTrackingController::handle_accepted(
         const std::shared_ptr<GoalHandle> goal_handle)
     {
 
@@ -286,7 +288,7 @@ namespace position_tracking_controller
             goal_handle->publish_feedback(feedback);
             loop_rate.sleep();
 
-            if (dist_remain < 0.05)
+            if (dist_remain < 0.04)
             {
                 result->success = true;
                 break;

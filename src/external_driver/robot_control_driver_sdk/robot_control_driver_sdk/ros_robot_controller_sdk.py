@@ -401,7 +401,7 @@ class Board:
                             servo_ids[3], 0x00,0x00])
             try:
                 # 得到数据，解包并返回：cmd(1) 个数(1) id(1) 数据(4) id(1) 数据(4) id(1) 数据(4) id(1) 数据(4)
-                data = self.pwm_servo_queue.get(block=True, timeout=1.0)
+                data = self.pwm_servo_queue.get(block=True, timeout=0.002)
                 groups = []
                 gid1,gval1,gid2,gval2,gid3,gval3,gid4,gval4,=struct.unpack(unpack, data[2:])
                 groups.append((gid1, gval1))
@@ -411,7 +411,7 @@ class Board:
                 return groups
             except queue.Empty:
                 print("PWM舵机响应超时")
-                return None
+            return []
             
     def pwm_servo_read_offset(self, servo_id):
         return self.pwm_servo_read_and_unpack(servo_id, 0x09, "<BBb")
