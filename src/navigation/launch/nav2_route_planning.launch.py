@@ -48,27 +48,27 @@ def generate_launch_description():
             output='screen',
             parameters=[bt_navigator_yaml]),
 
-        Node(
-            package='nav2_smoother',
-            executable='smoother_server',
-            name='smoother_server',
-            output='screen',
-            parameters=[smoother_yaml],   # 你的 yaml 里已经包含 smoother_server 段
-        ),
+        # Node(
+        #     package='nav2_smoother',
+        #     executable='smoother_server',
+        #     name='smoother_server',
+        #     output='screen',
+        #     parameters=[smoother_yaml],   # 你的 yaml 里已经包含 smoother_server 段
+        # ),
 
-        Node(
-            package='nav2_velocity_smoother',
-            executable='velocity_smoother',
-            name='velocity_smoother',
-            output='screen',
-            parameters=[smoother_yaml,
-                        {'use_stamped_vel': True},        # 启用 stamped 输出
-                        {'velocity_frame_id': 'base_link'}],  # header.frame_id
-            remappings=[
-                ('/cmd_vel_in',  '/nav2_controller_raw_cmd'),      # Twist 输入
-                ('/cmd_vel_smooth_stamped', '/mecanum_drive_controller/reference')  # TwistStamped 输出
-            ],
-        ),
+        # Node(
+        #     package='nav2_velocity_smoother',
+        #     executable='velocity_smoother',
+        #     name='velocity_smoother',
+        #     output='screen',
+        #     parameters=[smoother_yaml,
+        #                 {'use_stamped_vel': True},        # 启用 stamped 输出
+        #                 {'velocity_frame_id': 'base_link'}],  # header.frame_id
+        #     remappings=[
+        #         ('/cmd_vel_in',  '/nav2_controller_raw_cmd'),      # Twist 输入
+        #         ('/cmd_vel_smooth_stamped', '/mecanum_drive_controller/reference')  # TwistStamped 输出
+        #     ],
+        # ),
 
         Node(
             package='nav2_lifecycle_manager',
@@ -80,6 +80,7 @@ def generate_launch_description():
                                         'controller_server',
                                         'behavior_server',
                                         'bt_navigator',
-                                        'smoother_server',
-                                        'velocity_smoother']}],)
+                                        # 'smoother_server',
+                                        # 'velocity_smoother'
+                                        ]}],)
     ])

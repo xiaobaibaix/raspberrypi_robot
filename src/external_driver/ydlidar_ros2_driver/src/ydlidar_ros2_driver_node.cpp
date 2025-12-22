@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 
   /* ---------- ROS 2 Jazzy 兼容：带类型声明 ---------- */
   auto desc = rcl_interfaces::msg::ParameterDescriptor{};
-  node->declare_parameter<std::string>("port", "/dev/ttyUSB0", desc, true);
+  node->declare_parameter<std::string>("port", "/dev/ttyAMA0", desc, true);
   node->declare_parameter<std::string>("ignore_array", "", desc, true);
   node->declare_parameter<std::string>("frame_id", "laser_frame", desc, true);
   node->declare_parameter<int>("baudrate", 115200, desc, true);

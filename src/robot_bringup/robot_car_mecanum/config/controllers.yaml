@@ -42,10 +42,10 @@ fl_speed_pid:
     gains:
       left_front_wheel_joint: {
         p: 11.5, 
-        i: 30.0, 
-        d: 0.035, 
+        i: 18.0, 
+        d: 1.65, 
         i_clamp_min: -120.0, 
-        i_clamp_max: 120.0, 
+        i_clamp_max: 120.0,  
         u_clamp_min: -255.0,
         u_clamp_max: 255.0,
         antiwindup: true, 
@@ -65,8 +65,8 @@ fr_speed_pid:
     gains:
       right_front_wheel_joint: {
         p: 11.5, 
-        i: 30.0, 
-        d: 0.035, 
+        i: 18.0, 
+        d: 1.65, 
         i_clamp_min: -120.0, 
         i_clamp_max: 120.0, 
         u_clamp_min: -255.0,
@@ -89,8 +89,8 @@ rl_speed_pid:
     gains:
       left_rear_wheel_joint: {
         p: 11.5, 
-        i: 30.0, 
-        d: 0.035, 
+        i: 18.0, 
+        d: 1.65, 
         i_clamp_min: -120.0, 
         i_clamp_max: 120.0, 
         u_clamp_min: -255.0,
@@ -112,8 +112,8 @@ rr_speed_pid:
     gains:
       right_rear_wheel_joint: {
         p: 11.5, 
-        i: 30.0, 
-        d: 0.035, 
+        i: 18.0, 
+        d: 1.65, 
         i_clamp_min: -120.0, 
         i_clamp_max: 120.0, 
         u_clamp_min: -255.0,
@@ -124,7 +124,7 @@ rr_speed_pid:
 
 mecanum_drive_controller:
   ros__parameters:
-    reference_timeout: 0.1
+    reference_timeout: 1.2
     front_left_wheel_command_joint_name: "fl_speed_pid/left_front_wheel_joint"
     front_right_wheel_command_joint_name: "fr_speed_pid/right_front_wheel_joint"
     rear_left_wheel_command_joint_name: "rl_speed_pid/left_rear_wheel_joint"

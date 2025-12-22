@@ -28,6 +28,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'twist_stamper = navigation.twist_stamper:main',
         ],
     },
 )

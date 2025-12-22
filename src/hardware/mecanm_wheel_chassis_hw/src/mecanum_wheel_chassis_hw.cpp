@@ -337,7 +337,7 @@ namespace mecanum_wheel_chassis_hw
             req->cmd.push_back(m4);
             auto future = pos_cli_->async_send_request(req);
 
-            if (rclcpp::spin_until_future_complete(node_, future, std::chrono::milliseconds(3)) == rclcpp::FutureReturnCode::SUCCESS)
+            if (rclcpp::spin_until_future_complete(node_, future, std::chrono::milliseconds(10)) == rclcpp::FutureReturnCode::SUCCESS)
             {
                 timeout_cnt_ = 0; // 收到包就清零
                 auto resp = future.get();
@@ -356,7 +356,7 @@ namespace mecanum_wheel_chassis_hw
                     if (resp->state[i].position.empty())
                     {
                         RCLCPP_ERROR(this->get_logger(), "motor %zu position empty", i);
-                        return hardware_interface::return_type::OK;
+                        continue;
                     }
 
                     /* 1. 原始角度 */
@@ -369,7 +369,8 @@ namespace mecanum_wheel_chassis_hw
                 }
             }
             else
-            { // 超时分支 —— 匀速模型
+            { 
+                // 超时分支 —— 匀速模型
                 ++timeout_cnt_;
                 if (timeout_cnt_ > MAX_TIMEOUT)
                 { // 长期丢包 → 停车
@@ -383,6 +384,8 @@ namespace mecanum_wheel_chassis_hw
                     hw_positions_[i] += hw_velocities_[i] * period.seconds();
                     // 速度保持上一周期值，无需再赋值
                 }
+                RCLCPP_INFO(this->get_logger(), "timer out!");
+
             }
         }
         else if (use_topic_)
