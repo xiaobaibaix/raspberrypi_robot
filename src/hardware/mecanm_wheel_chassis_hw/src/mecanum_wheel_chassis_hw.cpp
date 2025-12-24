@@ -208,17 +208,18 @@ namespace mecanum_wheel_chassis_hw
             cmd_pub_ = node_->create_publisher<robot_msgs::msg::MotorsState>("/ros_robot_controller/set_motor", 10);
             if (use_topic_)
             {
-                pos_sub_ = node_->create_subscription<robot_msgs::msg::PWMServoState>("/ros_robot_controller/motor_pos", 10,
-                                                                                      [&](const robot_msgs::msg::PWMServoState::SharedPtr msg)
-                                                                                      {
-                                                                                          std::lock_guard<std::mutex> lock(sb_queue_mutex_);
-                                                                                          for (size_t i = 0; i < msg->id.size(); ++i)
-                                                                                          {
-                                                                                              size_t idx = msg->id[i] - 1; // 先检查越界更稳妥
-                                                                                              if (idx < sub_queues_.size())
-                                                                                                  sub_queues_[idx].push_back({msg->id[i], msg->position[i]});
-                                                                                          }
-                                                                                      });
+                pos_sub_ = node_->create_subscription<robot_msgs::msg::PWMServoState>(
+                    "/ros_robot_controller/motor_pos", 10,
+                    [&](const robot_msgs::msg::PWMServoState::SharedPtr msg)
+                    {
+                        std::lock_guard<std::mutex> lock(sb_queue_mutex_);
+                        for (size_t i = 0; i < msg->id.size(); ++i)
+                        {
+                            size_t idx = msg->id[i] - 1; // 先检查越界更稳妥
+                            if (idx < sub_queues_.size())
+                                sub_queues_[idx].push_back({msg->id[i], msg->position[i]});
+                        }
+                    });
                 for (auto &q : sub_queues_)
                     q.set_capacity(Q_LEN);
                 RCLCPP_INFO(logger, "created sub client for PWMServoState");
@@ -313,7 +314,8 @@ namespace mecanum_wheel_chassis_hw
         (void)time;
         if (use_topic_ && use_server_)
         {
-            // 请求
+
+            // // 请求
             auto req = std::make_shared<robot_msgs::srv::GetPWMServoState::Request>();
             robot_msgs::msg::GetPWMServoCmd m1;
             m1.id = 1;           // uint8
@@ -344,7 +346,7 @@ namespace mecanum_wheel_chassis_hw
                 if (resp->state.size() != 4)
                 { // 直接判长度
                     RCLCPP_ERROR(this->get_logger(), "Motor data size != 4");
-                    for(auto &s : resp->state)
+                    for (auto &s : resp->state)
                     {
                         RCLCPP_ERROR(this->get_logger(), "id:%d pos size:%zu", s.id, s.position.size());
                     }
@@ -366,10 +368,16 @@ namespace mecanum_wheel_chassis_hw
                     hw_velocities_[i] = (1.0 - VELOCITY_ALPHA) * hw_velocities_[i] + VELOCITY_ALPHA * raw_v;
                     /* 3. 更新位置 */
                     hw_positions_[i] = raw_angle;
+                    // RCLCPP_INFO(this->get_logger(),
+                    //             "[%d] speed:%f position:%f encode:%d",
+                    //             i,
+                    //             hw_velocities_[i],
+                    //             hw_positions_[i],
+                    //             resp->state[i].position.front());
                 }
             }
             else
-            { 
+            {
                 // 超时分支 —— 匀速模型
                 ++timeout_cnt_;
                 if (timeout_cnt_ > MAX_TIMEOUT)
@@ -385,7 +393,6 @@ namespace mecanum_wheel_chassis_hw
                     // 速度保持上一周期值，无需再赋值
                 }
                 RCLCPP_INFO(this->get_logger(), "timer out!");
-
             }
         }
         else if (use_topic_)
@@ -431,25 +438,13 @@ namespace mecanum_wheel_chassis_hw
         (void)period;
         if (use_topic_)
         {
-            // 限制输出30以下没有输出
-            double tmp_commands_[4];
-            for (size_t i = 0; i < hw_commands_.size(); ++i)
-            {
-                // if (std::abs(hw_commands_[i]) <= 40)
-                // {
-                //     tmp_commands_[i] = 0.0;
-                // }
-                // else
-                    tmp_commands_[i] = hw_commands_[i];
-            }
-
             // topic 发送指令
             cmd_pub_->publish(robot_msgs::msg::MotorsState(
                 robot_msgs::msg::MotorsState().set__data({
-                    robot_msgs::msg::MotorState().set__id(1).set__rps(static_cast<int16_t>(tmp_commands_[0])),
-                    robot_msgs::msg::MotorState().set__id(2).set__rps(static_cast<int16_t>(tmp_commands_[1])),
-                    robot_msgs::msg::MotorState().set__id(3).set__rps(static_cast<int16_t>(tmp_commands_[2])),
-                    robot_msgs::msg::MotorState().set__id(4).set__rps(static_cast<int16_t>(tmp_commands_[3])),
+                    robot_msgs::msg::MotorState().set__id(1).set__rps(static_cast<int16_t>(hw_commands_[0])),
+                    robot_msgs::msg::MotorState().set__id(2).set__rps(static_cast<int16_t>(hw_commands_[1])),
+                    robot_msgs::msg::MotorState().set__id(3).set__rps(static_cast<int16_t>(hw_commands_[2])),
+                    robot_msgs::msg::MotorState().set__id(4).set__rps(static_cast<int16_t>(hw_commands_[3])),
                 })));
             // RCLCPP_INFO(rclcpp::get_logger("MecanumWheelChassisHW"),
             //     "Published motor commands via topic: [%f, %f, %f, %f]",

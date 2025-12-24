@@ -40,19 +40,7 @@ def generate_launch_description():
                 os.path.join(
                     robot_path,
                     'launch',
-                    'robot_ros2_control_pid.launch.py'
-                ),
-            ])
-        )
-    )
-
-    ld.add_action(
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                os.path.join(
-                    robot_path,
-                    'launch',
-                    'robot_ekf.launch.py'
+                    'robot_ros2_control.launch.py'
                 ),
             ])
         )
@@ -70,30 +58,30 @@ def generate_launch_description():
         )
     )
 
-    nav2_local=IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            os.path.join(
-                nav2_path,
-                'launch',
-                'nav2_local_localization.launch.py'
-            ),
-        ])  
-    )
-    ld.add_action(TimerAction(
-        period=5.0,
-        actions=[nav2_local],
-    ))
-    nav2_rout=IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            os.path.join(
-                nav2_path,
-                'launch',
-                'nav2_route_planning.launch.py'
-            ),
-        ])  
-    )
-    ld.add_action(TimerAction(
-        period=10.0,
-        actions=[nav2_rout],
-    ))
+    # nav2_local=IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource([
+    #         os.path.join(
+    #             nav2_path,
+    #             'launch',
+    #             'nav2_local_localization.launch.py'
+    #         ),
+    #     ])  
+    # )
+    # ld.add_action(TimerAction(
+    #     period=5.0,
+    #     actions=[nav2_local],
+    # ))
+    # nav2_rout=IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource([
+    #         os.path.join(
+    #             nav2_path,
+    #             'launch',
+    #             'nav2_route_planning.launch.py'
+    #         ),
+    #     ])  
+    # )
+    # ld.add_action(TimerAction(
+    #     period=10.0,
+    #     actions=[nav2_rout],
+    # ))
     return ld

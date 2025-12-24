@@ -46,7 +46,7 @@ def generate_launch_description():
         package='controller_manager',
         executable='ros2_control_node',
         parameters=[
-            os.path.join(pkg, 'config', 'controllers.yaml'),
+            os.path.join(pkg, 'config', 'controllers_pid.yaml'),
             # 添加 use_sim_time 参数
             {'use_sim_time': False},
         ],

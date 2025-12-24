@@ -24,14 +24,10 @@ class TwistStamperNode(Node):
 
 def main():
     rclpy.init()
-    parser = argparse.ArgumentParser(description='Twist -> TwistStamped relay')
-    parser.add_argument('in_topic',  help='Input Twist topic')
-    parser.add_argument('out_topic', help='Output TwistStamped topic')
-    parser.add_argument('-f', '--frame-id', default='base_link',
-                        help='frame_id in header (default: base_link)')
-    args = parser.parse_args()
 
-    node = TwistStamperNode(args.in_topic, args.out_topic, args.frame_id)
+    node = TwistStamperNode('cmd_vel_smoothed',
+                             'mecanum_drive_controller/reference',
+                             'base_link')
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

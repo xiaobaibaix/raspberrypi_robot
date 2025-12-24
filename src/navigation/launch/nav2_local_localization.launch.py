@@ -7,6 +7,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     
     nav2_yaml = os.path.join(get_package_share_directory('navigation'), 'config', 'amcl.yaml')
+    nav2_params = os.path.join(get_package_share_directory('navigation'), 'config', 'nav2_params_my.yaml')
     map_file = os.path.join(get_package_share_directory('slam_cartographer'), 'maps', 'map.yaml')
 
     return LaunchDescription([
@@ -24,7 +25,7 @@ def generate_launch_description():
             executable='amcl',
             name='amcl',
             output='screen',
-            parameters=[nav2_yaml]
+            parameters=[nav2_params]
         ),
 
         Node(

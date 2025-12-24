@@ -37,17 +37,9 @@ amcl:
     z_max: 0.05
     z_rand: 0.5
     z_short: 0.05
+    scan_topic: scan
     set_initial_pose: true  # 使 AMCL 从 initial_pose参数设置初始姿态，而不是等待 initial_pose 消息。也就是说可以通过其他方式来确定初始位置
     initial_pose: 
         x: 0.0
         y: 0.0
         yaw: 0.0
-    # # 地图坐标系下的初始估计
-    # initial_pose.x: 0.0        # 单位 m
-    # initial_pose.y: 0.0
-    # initial_pose.z: 0.0
-    # initial_pose.yaw: 0.0      # 车头朝向（rad）
-    # # 置信度（标准差）
-    # initial_pose.covariance_x: 0.5
-    # initial_pose.covariance_y: 0.5
-    # initial_pose.covariance_yaw: 0.3
