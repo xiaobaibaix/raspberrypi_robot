@@ -1,5 +1,5 @@
 # ros2
-colcon build --symlink-install --allow-overriding mecanum_drive_controller --packages-select 
+MAKEFLAGS="-j1" colcon build --symlink-install --allow-overriding mecanum_drive_controller --packages-select 
 
 sudo apt update && sudo apt install -y \
     ninja-build \

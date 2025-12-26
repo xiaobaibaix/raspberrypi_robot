@@ -32,6 +32,14 @@
   <xacro:property name="imu_offset_y" value="0.0"/>
   <xacro:property name="imu_offset_z" value="0.01"/>
 
+  <xacro:property name="camera_width" value="0.04"/>
+  <xacro:property name="camera_length" value="0.12"/>
+  <xacro:property name="camera_height" value="0.04"/>
+  <xacro:property name="camera_mass" value="0.1"/>
+  <xacro:property name="camera_offset_x" value="0.1"/>
+  <xacro:property name="camera_offset_y" value="0.0"/>
+  <xacro:property name="camera_offset_z" value="0.05"/>
+
   <!-- 颜色 -->
   <xacro:property name="base_color" value="0 0.2 0.8 0.5"/>
   <xacro:property name="wheel_color" value="0 0 0 1"/>
@@ -144,6 +152,22 @@
     <parent link="base_link"/>
     <child link="imu_link"/>
     <origin xyz="${imu_offset_x} ${imu_offset_y} ${imu_offset_z}" rpy="0 0 0"/>
+  </joint>
+
+  <link name='camera_link'>
+      <visual>
+      <geometry><box size="${camera_width} ${camera_length} ${camera_height}"/></geometry>
+      <material name="gray"/>
+    </visual>
+    <collision>
+      <geometry><box size="${camera_width} ${camera_length} ${camera_height}"/></geometry>
+    </collision>
+    <xacro:box_inertia mass="${camera_mass}" x="${camera_width}" y="${camera_length}" z="${camera_height}"/>
+  </link>
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <origin xyz="${camera_offset_x} ${camera_offset_y} ${camera_offset_z}" rpy="0 0 0"/>
   </joint>
 
 </robot>
