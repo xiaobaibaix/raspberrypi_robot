@@ -139,3 +139,12 @@ vncserver -geometry 1280x720 -depth 16 :1 -localhost no //启动vnc服务器
 
 
 minicom -D /dev/ttyAMA0 -b 115200
+
+# 启动虚拟环境
+source ~/workspace/rosboardev/bin/activate
+
+# 启动web服务器（必须在对应html的文件夹下面启动）
+python3 -m http.server 9999
+
+# 启动桥接
+ros2 launch rosbridge_server rosbridge_websocket_launch.xml
