@@ -143,8 +143,11 @@ minicom -D /dev/ttyAMA0 -b 115200
 # 启动虚拟环境
 source ~/workspace/rosboardev/bin/activate
 
+deactivate rosboardev
+
 # 启动web服务器（必须在对应html的文件夹下面启动）
 python3 -m http.server 9999
 
 # 启动桥接
-ros2 launch rosbridge_server rosbridge_websocket_launch.xml
+ros2 launch rosbridge_server rosbridge_websocket_launch.xml delay_between_messages 0.0
+ros2 run rosbridge_server rosbridge_websocket

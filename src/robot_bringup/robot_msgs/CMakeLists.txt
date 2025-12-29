@@ -1,4 +1,11 @@
 cmake_minimum_required(VERSION 3.8)
+# ===================== 新增代码 START =====================
+# 强制指定系统Python解释器（树莓派默认系统Python路径）
+set(Python3_EXECUTABLE "/usr/bin/python3")
+set(PYTHON_EXECUTABLE "/usr/bin/python3")
+# 覆盖rosidl_adapter专用的Python路径（解决接口生成时的调用问题）
+set(rosidl_adapter_PYTHON_EXECUTABLE "/usr/bin/python3")
+
 project(robot_msgs)
 
 if(POLICY CMP0148)
