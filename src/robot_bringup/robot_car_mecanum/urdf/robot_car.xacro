@@ -11,14 +11,6 @@
       <param name="encoder_ppr">780.0</param>
       <param name="wheel_radius">0.03</param>
       <param name="gear_ratio">1</param>
-      <param name="max_pwm">200</param>
-      <param name="min_pwm">10</param>
-      <param name="lf_max_speed">10.0</param><!-- rad/s-->
-      <param name="rf_max_speed">10.0</param>
-      <param name="lr_max_speed">10.0</param>
-      <param name="rr_max_speed">10.0</param>
-      <param name="use_server">true</param>
-      <param name="use_topic">true</param>
     </hardware>
 
     <joint name="left_front_wheel_joint">

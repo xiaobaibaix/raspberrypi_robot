@@ -143,7 +143,7 @@ mecanum_drive_controller:
 
     base_frame_id: "base_footprint"
     odom_frame_id: "odom"
-    enable_odom_tf: false
+    enable_odom_tf: true
     pose_covariance_diagonal: [0.01, 0.01, 0.02, 0.03, 0.03, 0.05]  # X,Y,Z,roll,pitch,yaw
     twist_covariance_diagonal: [0.01, 0.01, 0.01, 0.02, 0.02, 0.03]
 

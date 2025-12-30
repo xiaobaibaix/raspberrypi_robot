@@ -12,12 +12,20 @@ from launch.substitutions import LaunchConfiguration
 from launch.actions import IncludeLaunchDescription, ExecuteProcess, RegisterEventHandler, TimerAction
 from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.actions import GroupAction
 
 def generate_launch_description():
     ld = LaunchDescription()
 
+
     pkg = get_package_share_directory('robot_car_mecanum')
+
+    ld.add_action(DeclareLaunchArgument(
+        'use_ekf',
+        default_value='true',
+        description='is to use the ekf')
+    )
 
     ld.add_action(DeclareLaunchArgument(
         'start_position_ctrl',
@@ -95,14 +103,19 @@ def generate_launch_description():
     )
 
     ld.add_action(
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                os.path.join(
-                    pkg,
-                    'launch',
-                    'robot_ekf.launch.py'
-                ),
-            )
+        GroupAction(
+            actions=[
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource(
+                        os.path.join(
+                            pkg,  # 注意：pkg需要先通过get_package_share_directory获取路径
+                            'launch',
+                            'robot_ekf.launch.py'
+                        )
+                    )
+                )
+            ],
+            condition=IfCondition(LaunchConfiguration('use_ekf'))  # condition写在GroupAction里
         )
     )
 

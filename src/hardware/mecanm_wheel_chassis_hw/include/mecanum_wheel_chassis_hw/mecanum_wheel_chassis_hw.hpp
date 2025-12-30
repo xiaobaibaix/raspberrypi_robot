@@ -52,35 +52,14 @@ namespace mecanum_wheel_chassis_hw
         std::vector<double> hw_velocities_;
         std::vector<double> hw_commands_;
 
-        // 类成员里加两个变量
-        int timeout_cnt_ = 0;                         // 连续超时次数
-        static constexpr int MAX_TIMEOUT = 5;         // 允许连续丢包次数
-        static constexpr double VELOCITY_ALPHA = 0.2; // 一阶低通系数
-
-        double encoder_ppr_;
-        double wheel_radius_;
-        double gear_ratio_;
+        double encoder_ppr_;//一圈编码值
+        double wheel_radius_;//轮半径
+        double gear_ratio_;//齿轮比
         std::string serial_port_;
         double baud_rate_;
-        double max_pwm_;
-        double min_pwm_;
-
-        std::array<double, 4> max_speed_;
-
-        bool use_topic_;
-        bool use_server_;
-
-        rclcpp::Node::SharedPtr node_;
-        rclcpp::Publisher<robot_msgs::msg::MotorsState>::SharedPtr cmd_pub_;
-        rclcpp::Subscription<robot_msgs::msg::PWMServoState>::SharedPtr pos_sub_;
-        rclcpp::Client<robot_msgs::srv::GetPWMServoState>::SharedPtr pos_cli_;
 
         std::vector<std::string> command_interface_types_;
+        
         MecanumMotorDriver *motor_driver_ = nullptr;
-        // 话题队列
-
-        static constexpr std::size_t Q_LEN = 10;
-        std::array<boost::circular_buffer<struct MotorPosition>, 4> sub_queues_;
-        std::mutex sb_queue_mutex_;
     };
 }

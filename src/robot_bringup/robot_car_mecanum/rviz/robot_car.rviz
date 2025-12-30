@@ -8,7 +8,9 @@ Panels:
         - /Map2/Topic1
         - /Map2/Orientation1
         - /DepthCloud1
+        - /DepthCloud1/Status1
         - /DepthCloud1/Auto Size1
+        - /DepthCloud1/Occlusion Compensation1
       Splitter Ratio: 0.39534884691238403
     Tree Height: 386
   - Class: rviz_common/Selection
@@ -439,18 +441,18 @@ Visualization Manager:
       Depth Map Topic: /camera/depth/image_raw
       Depth Map Transport Hint: raw
       Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
+      Invert Rainbow: true
+      Max Color: 255; 255; 0
       Max Intensity: 4096
       Min Color: 0; 0; 0
       Min Intensity: 0
       Name: DepthCloud
       Occlusion Compensation:
         Occlusion Time-Out: 30
-        Value: false
+        Value: true
       Position Transformer: XYZ
       Queue Size: 5
-      Reliability Policy: Best effort
+      Reliability Policy: System Default
       Selectable: true
       Size (Pixels): 3
       Style: Flat Squares
@@ -504,7 +506,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 0.9395022392272949
+      Distance: 1.3910495042800903
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -519,10 +521,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.4897966682910919
+      Pitch: 0.5447964668273926
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.661757469177246
+      Yaw: 3.331757068634033
     Saved: ~
 Window Geometry:
   Displays:

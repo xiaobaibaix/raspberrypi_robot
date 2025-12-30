@@ -1,4 +1,0 @@
-robot_msgs/GetPWMServoCmd[] cmd
----
-bool success
-robot_msgs/PWMServoState[] state

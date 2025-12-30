@@ -139,14 +139,12 @@ std::array<int32_t, 4> MecanumMotorDriver::readEncoder()
 /* ---------- 私有实现 ---------- */
 std::vector<uint8_t> MecanumMotorDriver::buildWriteFrame(const std::array<int16_t, 4> &pwm)
 {
-    // 0xaa 0x55 motor(1) datalen(1) cmd(1) timer(2) motorszie(1) | id(1) data(2) id(1) data(2) id(1) data(2) id(1) data(2) crc(1)
+    // 0xaa 0x55 motor(1) datalen(1) cmd(1) motorszie(1) | id(1) data(2) id(1) data(2) id(1) data(2) id(1) data(2) crc(1)
     std::vector<uint8_t> f;
     f.insert(f.end(), {HEAD1, HEAD2, EquipmentType::EncodeMotor});
 
     std::vector<uint8_t> data;
     data.push_back(MotorCMDType::SET_pwm);
-    data.push_back(0x0a);
-    data.push_back(0x00);
     data.push_back(4);
     for (size_t i = 0; i < 4; ++i)
     {

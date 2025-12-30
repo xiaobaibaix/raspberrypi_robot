@@ -32,6 +32,7 @@ setup(
         'console_scripts': [
             "key_control=robot_car_mecanum.key_control:main",
             "position_control=robot_car_mecanum.position_control:main",
+            "tf_odom=robot_car_mecanum.tf_odom:main",
         ],
     },
 )
