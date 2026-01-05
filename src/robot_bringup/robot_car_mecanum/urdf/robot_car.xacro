@@ -11,6 +11,7 @@
       <param name="encoder_ppr">780.0</param>
       <param name="wheel_radius">0.03</param>
       <param name="gear_ratio">1</param>
+      <param name="filter_enable">true</param>
     </hardware>
 
     <joint name="left_front_wheel_joint">

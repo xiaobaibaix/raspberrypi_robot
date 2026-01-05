@@ -2,7 +2,7 @@
 
 # ros2
 MAKEFLAGS="-j1" colcon build --symlink-install --allow-overriding mecanum_drive_controller --packages-select 
-
+MAKEFLAGS="-j2" colcon build --symlink-install --packages-select mecanum_wheel_chassis_hw
 sudo apt update && sudo apt install -y \
     ninja-build \
     build-essential \
@@ -151,3 +151,16 @@ python3 -m http.server 9999
 # 启动桥接
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml delay_between_messages 0.0
 ros2 run rosbridge_server rosbridge_websocket
+
+# 设置右后轮的比例增益
+ros2 param set rr_speed_pid gains.right_rear_wheel_joint.p 0.8
+
+# 设置右后轮的积分增益
+ros2 param set rr_speed_pid gains.right_rear_wheel_joint.i 0.2
+
+# 设置右后轮的微分增益
+ros2 param set rr_speed_pid gains.right_rear_wheel_joint.d 0.05
+
+# 设置积分限制
+ros2 param set rr_speed_pid gains.right_rear_wheel_joint.i_clamp_max 1.0
+ros2 param set rr_speed_pid gains.right_rear_wheel_joint.i_clamp_min -1.0

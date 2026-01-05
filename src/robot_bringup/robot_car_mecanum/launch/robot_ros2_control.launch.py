@@ -14,6 +14,7 @@ from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.actions import GroupAction
+from launch.conditions import UnlessCondition
 
 def generate_launch_description():
     ld = LaunchDescription()
@@ -102,8 +103,7 @@ def generate_launch_description():
         parameters=[{'use_sim_time': False}]
     )
 
-    ld.add_action(
-        GroupAction(
+    ld.add_action(GroupAction(
             actions=[
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
@@ -116,6 +116,20 @@ def generate_launch_description():
                 )
             ],
             condition=IfCondition(LaunchConfiguration('use_ekf'))  # condition写在GroupAction里
+        )
+    )
+
+    ld.add_action(
+        GroupAction(
+            actions=[
+                Node(
+                    package='robot_car_mecanum',
+                    executable='tf_odom', 
+                    output='both',
+                    name='tf_odom',
+                )
+            ],
+            condition=UnlessCondition(LaunchConfiguration('use_ekf'))  # condition写在GroupAction里
         )
     )
 

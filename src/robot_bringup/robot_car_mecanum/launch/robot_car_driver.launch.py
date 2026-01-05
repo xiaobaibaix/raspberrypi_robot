@@ -33,13 +33,4 @@ def generate_launch_description():
         )
     )
 
-    ld.add_action(
-        Node(
-            package='robot_control_driver_sdk',
-            executable='ros_robot_controller_node',
-            name='ros_robot_controller',
-            output='screen',
-        )
-    )
-
     return ld

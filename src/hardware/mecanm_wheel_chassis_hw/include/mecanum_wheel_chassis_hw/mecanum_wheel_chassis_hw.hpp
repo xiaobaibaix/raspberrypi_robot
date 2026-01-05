@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <algorithm>
+#include <chrono>
 
 #include "hardware_interface/system_interface.hpp"
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
@@ -11,9 +13,6 @@
 #include "rclcpp_lifecycle/state.hpp"
 #include <boost/circular_buffer.hpp>
 #include "mecanum_motor_driver.hpp"
-#include "robot_msgs/msg/motors_state.hpp"
-#include "robot_msgs/msg/pwm_servo_state.hpp"
-#include "robot_msgs/srv/get_pwm_servo_state.hpp"
 
 namespace mecanum_wheel_chassis_hw
 {
@@ -21,7 +20,7 @@ namespace mecanum_wheel_chassis_hw
     {
     public:
         RCLCPP_SHARED_PTR_DEFINITIONS(MecanumWheelChassisHW)
-
+        MecanumWheelChassisHW() = default;
         hardware_interface::CallbackReturn on_init(
             const hardware_interface::HardwareComponentInterfaceParams &params) override;
 
@@ -52,14 +51,23 @@ namespace mecanum_wheel_chassis_hw
         std::vector<double> hw_velocities_;
         std::vector<double> hw_commands_;
 
-        double encoder_ppr_;//一圈编码值
-        double wheel_radius_;//轮半径
-        double gear_ratio_;//齿轮比
+        double encoder_ppr_;  // 一圈编码值
+        double wheel_radius_; // 轮半径
+        double gear_ratio_;   // 齿轮比
         std::string serial_port_;
         double baud_rate_;
 
+        // 滤波参数
+        double filter_pos_alpha_;
+        double filter_vel_alpha_;
+        bool filter_enable_;
+
+        // 滤波状态
+        std::vector<double> filtered_positions_;
+        std::vector<double> filtered_velocities_;
+
         std::vector<std::string> command_interface_types_;
-        
-        MecanumMotorDriver *motor_driver_ = nullptr;
+
+        std::unique_ptr<MecanumMotorDriver> motor_driver_;
     };
 }

@@ -31,6 +31,7 @@ private:
     std::vector<uint8_t> buildReadFrame();
     bool waitForEncoder(std::array<int32_t, 4> &enc, std::chrono::milliseconds timeout);
     static uint8_t crc8(const std::vector<uint8_t> &data, size_t len);
+    static uint8_t addDiff(const std::vector<uint8_t> &data);
 
     /* 成员变量 */
     drivers::common::IoContext io_ctx_; // 使用完整的命名空间
@@ -43,4 +44,5 @@ private:
     bool stop_ = false;
 
     std::array<std::queue<int32_t>, 4> encQueues_;
+    std::chrono::_V2::steady_clock::time_point t;
 };

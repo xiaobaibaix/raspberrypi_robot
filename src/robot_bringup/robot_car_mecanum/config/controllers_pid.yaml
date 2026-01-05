@@ -41,14 +41,17 @@ fl_speed_pid:
 
     gains:
       left_front_wheel_joint: {
-        p: 11.5, 
-        i: 18.0, 
-        d: 1.65, 
+        p: 5.0, 
+        i: 0.0, 
+        d: 0.0, 
+        # p: 10.0,
+        # i: 0.0,
+        # d: 0.0,
         i_clamp_min: -120.0, 
         i_clamp_max: 120.0,  
         u_clamp_min: -255.0,
         u_clamp_max: 255.0,
-        antiwindup: true, 
+        antiwindup: false, 
         feedforward_gain: 0.95
       }
 
@@ -64,14 +67,14 @@ fr_speed_pid:
 
     gains:
       right_front_wheel_joint: {
-        p: 11.5, 
-        i: 18.0, 
-        d: 1.65, 
+        p: 5.0, 
+        i: 0.0, 
+        d: 0.0, 
         i_clamp_min: -120.0, 
         i_clamp_max: 120.0, 
         u_clamp_min: -255.0,
         u_clamp_max: 255.0,
-        antiwindup: true, 
+        antiwindup: false, 
         feedforward_gain: 0.95
       }
 
@@ -88,14 +91,14 @@ rl_speed_pid:
 
     gains:
       left_rear_wheel_joint: {
-        p: 11.5, 
-        i: 18.0, 
-        d: 1.65, 
+        p: 5.0, 
+        i: 0.0, 
+        d: 0.0, 
         i_clamp_min: -120.0, 
         i_clamp_max: 120.0, 
         u_clamp_min: -255.0,
         u_clamp_max: 255.0,
-        antiwindup: true, 
+        antiwindup: false, 
         feedforward_gain: 0.95
       }
 
@@ -111,14 +114,14 @@ rr_speed_pid:
 
     gains:
       right_rear_wheel_joint: {
-        p: 11.5, 
-        i: 18.0, 
-        d: 1.65, 
+        p: 5.0, 
+        i: 0.0, 
+        d: 0.0, 
         i_clamp_min: -120.0, 
         i_clamp_max: 120.0, 
         u_clamp_min: -255.0,
         u_clamp_max: 255.0,
-        antiwindup: true, 
+        antiwindup: false, 
         feedforward_gain: 0.95
       }
 

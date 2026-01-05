@@ -11,6 +11,7 @@ enum RecvDataStatus
     DATA_hand2,
     DATA_equipment,
     DATA_len,
+    DATA_data,
     DATA_CRC,
 };
 
@@ -97,9 +98,10 @@ void MecanumMotorDriver::writeSpeed(const std::array<int16_t, 4> &pwm)
     {
         port_->send(frame);
         // std::cout << "send speed Frame: ";
-        // for (const auto & byte : frame) {
+        // for (const auto &byte : frame)
+        // {
         //     std::cout << std::hex << std::setfill('0') << std::setw(2)
-        //       << static_cast<int>(static_cast<uint8_t>(byte)) << " ";
+        //               << static_cast<int>(static_cast<uint8_t>(byte)) << " ";
         // }
         // std::cout << std::dec << std::endl;
     }
@@ -112,13 +114,15 @@ void MecanumMotorDriver::writeSpeed(const std::array<int16_t, 4> &pwm)
 std::array<int32_t, 4> MecanumMotorDriver::readEncoder()
 {
     auto frame = buildReadFrame();
+    t=steady_clock::now();
     try
     {
         port_->send(frame);
         // std::cout << "send cmd Frame: ";
-        // for (const auto & byte : frame) {
+        // for (const auto &byte : frame)
+        // {
         //     std::cout << std::hex << std::setfill('0') << std::setw(2)
-        //       << static_cast<int>(static_cast<uint8_t>(byte)) << " ";
+        //               << static_cast<int>(static_cast<uint8_t>(byte)) << " ";
         // }
         // std::cout << std::dec << std::endl;
     }
@@ -128,10 +132,9 @@ std::array<int32_t, 4> MecanumMotorDriver::readEncoder()
     }
 
     std::array<int32_t, 4> enc{};
-    if (!waitForEncoder(enc, milliseconds(50)))
+    if (!waitForEncoder(enc, milliseconds(10)))
     {
         std::cerr << "readEncoder timeout" << std::endl;
-        enc = {0, 0, 0, 0};
     }
     return enc;
 }
@@ -152,11 +155,11 @@ std::vector<uint8_t> MecanumMotorDriver::buildWriteFrame(const std::array<int16_
         data.push_back(static_cast<uint8_t>(pwm[i] & 0xFF));
         data.push_back(static_cast<uint8_t>((pwm[i] >> 8) & 0xFF));
     }
-    f.push_back(data.size()); // 数据长度
+    f.push_back(data.size()+1); // 数据长度
     f.insert(f.end(),
              std::make_move_iterator(data.begin()),
              std::make_move_iterator(data.end()));
-    // f.push_back(crc8(f, f.size()));
+    f.push_back(addDiff({f.begin() + 2, f.end()}));
     return f;
 }
 
@@ -167,12 +170,14 @@ std::vector<uint8_t> MecanumMotorDriver::buildReadFrame()
     std::vector<uint8_t> f;
     f.insert(f.end(), {HEAD1, HEAD2, EquipmentType::EncodeMotor});
     std::vector<uint8_t> data;
-    data.insert(data.end(), {MotorCMDType::GET_encode, 0x00, 0x00, 0x04, 0x01, 0x00, 0x00, 0x02, 0x00, 0x00, 0x03, 0x00, 0x00, 0x04, 0x00, 0x00});
-    f.push_back(data.size());
+    data.insert(data.end(), {MotorCMDType::GET_encode, 0x04, 0x01, 0x00, 0x00, 0x02, 0x00, 0x00, 0x03, 0x00, 0x00, 0x04, 0x00, 0x00});
+    f.push_back(data.size() + 1);
     f.insert(f.end(),
              std::make_move_iterator(data.begin()),
              std::make_move_iterator(data.end()));
-    // f.push_back(crc8(f, f.size()));
+    // 去掉头计算check
+    // std::cout << "[buildReadFrame]";
+    f.push_back(addDiff({f.begin() + 2, f.end()}));
     return f;
 }
 
@@ -189,6 +194,24 @@ uint8_t MecanumMotorDriver::crc8(const std::vector<uint8_t> &data, size_t len)
         }
     }
     return crc;
+}
+
+uint8_t MecanumMotorDriver::addDiff(const std::vector<uint8_t> &data)
+{
+    // 0xff-循环相加结果取低八位数据
+    if (data.empty())
+        return 0x00;
+    uint32_t num = 0;
+
+    // std::cout << "[addDiff]" << "the chack datas::";
+    for (auto d : data)
+    {
+        num += d;
+        // std::cout << std::hex << std::setfill('0') << std::setw(2)
+        //           << static_cast<int>(static_cast<uint8_t>(d)) << " ";
+    }
+    // std::cout << std::dec << std::endl;
+    return (0xff - num) & 0xff;
 }
 
 /* ---------- 后台解析线程 ---------- */
@@ -212,25 +235,34 @@ void MecanumMotorDriver::readThreadFunc()
         // }
         // std::cout << std::dec << std::endl;
 
-        static const int data_size = 2;
+        auto dt=steady_clock::now()-t;
+
+        auto duration_us = std::chrono::duration_cast<std::chrono::microseconds>(dt).count();
+        // std::cout << "readEncoder callback took " << duration_us << " us" << std::endl;
+
+        static const int data_size = 4;
         for (int i = 0; i < count; i++)
         {
+            int id = data.at(i * (data_size + 1) + 1);
             int16_t encode_dat = (data.at(i * (data_size + 1) + 2)) |
-                                 (data.at(i * (data_size + 1) + 3) << 8);
-            if (data.at(i * (data_size + 1) + 1) > 4 || data.at(i * (data_size + 1) + 1) < 1)
+                                 (data.at(i * (data_size + 1) + 3) << 8) |
+                                 (data.at(i * (data_size + 1) + 4) << 16) |
+                                 (data.at(i * (data_size + 1) + 5) << 24);
+            if (id > 4 || id < 1)
+            { // 不在对应id电机范围
                 continue;
-            // std::cout << "Encoder " << static_cast<int>(data.at(i*(data_size+1)+1))
+            }
+            else
+            {
+                this->encQueues_.at(id - 1).push(encode_dat);
+            }
+            // std::cout << "Encoder " << id
             //           << ": " << encode_dat << std::endl;
-
-            // std::lock_guard<std::mutex> lk(mtx_);
-            // if (this->encQueues_.at(data.at(i*(data_size+1)+1)-1).size() >= 10) {
-            //     this->encQueues_.at(data.at(i*(data_size+1)+1)-1).pop();
-            // }
-            this->encQueues_.at(data.at(i * (data_size + 1) + 1) - 1).push(encode_dat);
         }
     };
 
-    std::cout << "Read thread running" << std::endl;
+    std::cout << "[readThreadFunc]" << "Read thread running" << std::endl;
+    int len = 0;
     while (true)
     {
         {
@@ -239,17 +271,18 @@ void MecanumMotorDriver::readThreadFunc()
                 break;
         }
         /* 接收数据 */
-        std::vector<uint8_t> chunk(16);
+        std::vector<uint8_t> chunk(64);
         try
         {
             size_t n = port_->receive(chunk); // 阻塞式接收
             if (n > 0)
             {
                 chunk.resize(n);
-                // std::cout << "Received " << n << " bytes: ";
-                // for (const auto & byte : chunk) {
+                // std::cout << "[readThreadFunc]" << "fun Received " << n << " bytes: ";
+                // for (const auto &byte : chunk)
+                // {
                 //     std::cout << std::hex << std::setfill('0') << std::setw(2)
-                //     << static_cast<int>(static_cast<uint8_t>(byte)) << " ";
+                //               << static_cast<int>(static_cast<uint8_t>(byte)) << " ";
                 // }
                 // std::cout << std::dec << std::endl;
             }
@@ -261,98 +294,162 @@ void MecanumMotorDriver::readThreadFunc()
         }
         catch (const std::exception &e)
         {
-            std::cerr << "Receive error: " << e.what() << std::endl;
+            std::cerr << "[readThreadFunc]" << "Receive error: " << e.what() << std::endl;
             std::this_thread::sleep_for(milliseconds(10));
             continue;
         }
 
         /* 拆帧逻辑 */
-        // 创建迭代器
-        std::vector<uint8_t>::iterator it;
-        // 将新数据添加到缓冲区
-        for (std::vector<uint8_t>::iterator it = chunk.begin(); it != chunk.end(); ++it)
-        {
+        /* 拆帧逻辑 - 处理每个字节 */
+        for (const auto &byte : chunk)
+        { // 使用 const 引用
             switch (status)
             {
             case RecvDataStatus::DATA_hand1:
             {
-                if (*it != HEAD1)
+                if (byte != HEAD1)
                 {
-                    // std::cout << std::hex << std::setfill('0') << std::setw(2)
-                    //     << static_cast<int>(static_cast<uint8_t>(*it)) << " ";
-                    // std::cout << std::dec << std::endl;
+                    std::cout << "[readThreadFunc] <hand1 err><"
+                              << std::hex << std::setfill('0') << std::setw(2)
+                              << static_cast<int>(byte) << ">" << std::dec << std::endl;
+                    // 状态错误，重置状态
+                    status = RecvDataStatus::DATA_hand1;
                 }
                 else
                 {
                     status = RecvDataStatus::DATA_hand2;
+                    // std::cout << "[readThreadFunc] <hand1 success><"
+                    //           << std::hex << std::setfill('0') << std::setw(2)
+                    //           << static_cast<int>(byte) << ">" << std::dec << std::endl;
                 }
+                break;
             }
-            break;
             case RecvDataStatus::DATA_hand2:
             {
-                if (*it == HEAD2)
+                if (byte == HEAD2)
                 {
                     status = RecvDataStatus::DATA_equipment;
                 }
                 else
                 {
+                    // 帧头不匹配，重新开始
                     status = RecvDataStatus::DATA_hand1;
                 }
+                break;
             }
-            break;
             case RecvDataStatus::DATA_equipment:
             {
-                if (*it <= EquipmentType::None)
+                if (byte <= EquipmentType::None)
                 {
+                    raw.push_back(byte);
                     status = RecvDataStatus::DATA_len;
-                    raw.push_back(*it);
                 }
                 else
                 {
+                    // 无效设备类型，重新开始
                     status = RecvDataStatus::DATA_hand1;
+                    raw.clear();
                 }
+                break;
             }
-            break;
             case RecvDataStatus::DATA_len:
             {
-                raw.push_back(*it);
-                if (raw.at(1) == (raw.size() - 2))
-                {
-                    // status=RecvDataStatus::DATA_CRC;
-                    goto fun_data;
-                }
-            }
-            break;
-            case RecvDataStatus::DATA_CRC:
-            {
-                if (crc8(std::vector<uint8_t>(raw.begin() + 2, raw.end() - 1), raw.at(1)) != *it)
-                {
-                    std::cerr << "CRC error, skipping frame" << std::endl;
+                if (byte >= 28)
+                { // 长度太大，可能是错误
                     status = RecvDataStatus::DATA_hand1;
+                    raw.clear();
                 }
                 else
                 {
-                fun_data:
-                    auto it = handlers.find((EquipmentType)raw.at(0));
-                    if (it != handlers.end())
+                    raw.push_back(byte);
+                    // std::cout << "[readThreadFunc] the frame len: "
+                    //           << static_cast<int>(byte) << ", expected data length: "
+                    //           << static_cast<int>(byte) - 1 << std::endl;
+                    len = 0;
+                    status = RecvDataStatus::DATA_data;
+                }
+                break;
+            }
+            case RecvDataStatus::DATA_data:
+            {
+                raw.push_back(byte);
+                len++;
+
+                // 注意：expected_len 是总长度（包括命令、数量、数据等）
+                // 需要收到 expected_len 个字节（从设备类型之后的所有字节）
+                if (len >= raw[1] - 1)
+                { // 修正这里
+                    status = RecvDataStatus::DATA_CRC;
+                }
+                break;
+            }
+            case RecvDataStatus::DATA_CRC:
+            {
+                // std::cout << "[readThreadFunc] ---------recv frame complete---------" << std::endl;
+                // std::cout << "Frame data (" << raw.size() << " bytes): ";
+                // for (auto c : raw)
+                // {
+                //     std::cout << std::hex << std::setfill('0') << std::setw(2)
+                //               << static_cast<int>(c) << " ";
+                // }
+                // std::cout << std::dec << std::endl;
+
+                // 计算校验和（不包括帧头 0xAA 0x55）
+                uint8_t calc_crc = addDiff({raw.begin(), raw.end()});
+                uint8_t recv_crc = byte;
+
+                // std::cout << "[readThreadFunc] Calculated CRC: " << std::hex
+                //           << static_cast<int>(calc_crc) << ", Received CRC: "
+                //           << static_cast<int>(recv_crc) << std::dec << std::endl;
+
+                if (calc_crc != recv_crc)
+                {
+                    std::cerr << "[readThreadFunc] CRC error, skipping frame. "
+                              << "Calc: 0x" << std::hex << static_cast<int>(calc_crc)
+                              << " Recv: 0x" << static_cast<int>(recv_crc) << std::dec
+                              << " Data size: " << raw.size() << std::endl;
+
+                    // 打印数据用于调试
+                    std::cout << "Data for CRC calc: ";
+                    for (size_t i = 2; i < raw.size(); ++i)
                     {
-                        it->second(std::vector<uint8_t>(raw.begin() + 5, raw.begin() + 5 + raw.at(1)));
-                        status = RecvDataStatus::DATA_hand1;
+                        std::cout << std::hex << std::setfill('0') << std::setw(2)
+                                  << static_cast<int>(raw[i]) << " ";
                     }
-                    else
+                    std::cout << std::dec << std::endl;
+                }
+                else
+                {
+                    // std::cout << "[readThreadFunc] CRC success!" << std::endl;
+                    // 调用处理器（从第4个字节开始是数据）
+                    if (raw.size() >= 4)
                     {
-                        std::cerr << "handlers use: " << (EquipmentType)raw.at(2) << std::endl;
+                        auto it = handlers.find(static_cast<EquipmentType>(raw[0]));
+                        if (it != handlers.end())
+                        {
+                            // 从设备类型之后的数据（跳过帧头、设备类型、长度）
+                            // raw[3] 是长度，所以数据从 raw[4] 开始
+                            it->second(std::vector<uint8_t>(raw.begin() + 3, raw.end()));
+                        }
+                        else
+                        {
+                            std::cerr << "[readThreadFunc] Unknown equipment type: "
+                                      << static_cast<int>(raw[2]) << std::endl;
+                        }
                     }
                 }
+
+                // 处理完一帧，重置状态
+                status = RecvDataStatus::DATA_hand1;
                 raw.clear();
+                break;
             }
-            break;
-            }
-        }
-        // 短暂延迟
+            } // end switch
+        } // end for
+
         std::this_thread::sleep_for(milliseconds(1));
     }
-    std::cout << "Read thread exiting" << std::endl;
+    std::cout << "[readThreadFunc]" << "Read thread exiting" << std::endl;
 }
 
 /* ---------- 同步等待 4 路编码器 ---------- */
@@ -360,12 +457,13 @@ bool MecanumMotorDriver::waitForEncoder(std::array<int32_t, 4> &enc, millisecond
 {
     auto deadline = steady_clock::now() + timeout;
     std::unique_lock<std::mutex> lk(mtx_);
-    bool ok = cv_.wait_until(lk, deadline, [&]
-                             {
+
+    bool ok = cv_.wait_until(lk, deadline, [&]{
         for (const auto & q : encQueues_) {
             if (q.empty()) return false;
         }
-        return true; });
+        return true; 
+    });
 
     if (ok)
     {

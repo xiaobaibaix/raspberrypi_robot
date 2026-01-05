@@ -17,13 +17,18 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(action_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-    "act/ToPose.action"
+  "msg/MotorState.msg"
+  "msg/MotorsState.msg"
+  "msg/GetPWMServoCmd.msg"
+  "msg/PWMServoState.msg"
+  "srv/GetPWMServoState.srv"
+  "action/ToPose.action"
 
   DEPENDENCIES 
-    std_msgs 
-    geometry_msgs 
-    action_msgs
- )
+  std_msgs 
+  geometry_msgs 
+  action_msgs
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
