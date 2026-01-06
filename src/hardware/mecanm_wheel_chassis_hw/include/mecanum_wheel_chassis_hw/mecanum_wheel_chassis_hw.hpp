@@ -66,6 +66,8 @@ namespace mecanum_wheel_chassis_hw
         std::vector<double> filtered_positions_;
         std::vector<double> filtered_velocities_;
 
+        std::vector<int32_t> last_encoder_counts_;
+
         std::vector<std::string> command_interface_types_;
 
         std::unique_ptr<MecanumMotorDriver> motor_driver_;

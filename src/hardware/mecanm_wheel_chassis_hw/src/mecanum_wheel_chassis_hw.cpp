@@ -20,7 +20,7 @@ namespace mecanum_wheel_chassis_hw
         {
             RCLCPP_WARN(rclcpp::get_logger("mecanum_wheel_chassis"), "没有硬件参数，使用默认值");
         }
-        
+
         // 设置串口参数
         serial_port_ = "/dev/ttyUSB0";
         if (info_.hardware_parameters.find("serial_port") != info_.hardware_parameters.end())
@@ -128,10 +128,11 @@ namespace mecanum_wheel_chassis_hw
         hw_velocities_.assign(n, 0.0);
         hw_commands_.assign(n, 0.0);
         command_interface_types_.resize(n);
-        
+
         // 滤波相关数组
         filtered_positions_.assign(n, 0.0);
         filtered_velocities_.assign(n, 0.0);
+        last_encoder_counts_.assign(n, 0);
 
         for (size_t i = 0; i < n; ++i)
         {
@@ -149,8 +150,8 @@ namespace mecanum_wheel_chassis_hw
         try
         {
             motor_driver_ = std::make_unique<MecanumMotorDriver>(serial_port_, baud_rate_);
-            RCLCPP_INFO(rclcpp::get_logger("mecanum_wheel_chassis"), "电机驱动初始化成功, 串口: %s, 波特率: %d", 
-                       serial_port_.c_str(), (int)baud_rate_);
+            RCLCPP_INFO(rclcpp::get_logger("mecanum_wheel_chassis"), "电机驱动初始化成功, 串口: %s, 波特率: %d",
+                        serial_port_.c_str(), (int)baud_rate_);
         }
         catch (const std::exception &e)
         {
@@ -159,16 +160,17 @@ namespace mecanum_wheel_chassis_hw
         }
 
         RCLCPP_INFO(rclcpp::get_logger("mecanum_wheel_chassis"), "Mecanum轮式底盘硬件接口初始化成功");
-        RCLCPP_INFO(rclcpp::get_logger("mecanum_wheel_chassis"), "编码器PPR: %.0f, 轮半径: %.3f, 减速比: %.2f", 
-                   encoder_ppr_, wheel_radius_, gear_ratio_);
-        RCLCPP_INFO(rclcpp::get_logger("mecanum_wheel_chassis"), "滤波参数: 位置α=%.2f, 速度α=%.2f, 启用: %s", 
-                   filter_pos_alpha_, filter_vel_alpha_, filter_enable_ ? "是" : "否");
+        RCLCPP_INFO(rclcpp::get_logger("mecanum_wheel_chassis"), "编码器PPR: %.0f, 轮半径: %.3f, 减速比: %.2f",
+                    encoder_ppr_, wheel_radius_, gear_ratio_);
+        RCLCPP_INFO(rclcpp::get_logger("mecanum_wheel_chassis"), "滤波参数: 位置α=%.2f, 速度α=%.2f, 启用: %s",
+                    filter_pos_alpha_, filter_vel_alpha_, filter_enable_ ? "是" : "否");
 
         auto encoders = motor_driver_->readEncoder();
-        for(int i=0;i<4;i++){
-            hw_velocities_[i] = (encoders[i] / encoder_ppr_) * 2.0 * M_PI / gear_ratio_;
+        for (int i = 0; i < 4; i++)
+        {
+            last_encoder_counts_[i]=encoders[i];
+            hw_positions_[i] = (encoders[i] / encoder_ppr_) * 2.0 * M_PI / gear_ratio_;
         }
-
         return hardware_interface::CallbackReturn::SUCCESS;
     }
 
@@ -204,14 +206,14 @@ namespace mecanum_wheel_chassis_hw
         const rclcpp_lifecycle::State &previous_state)
     {
         (void)previous_state;
-        
+
         // 重置状态
         for (size_t i = 0; i < hw_positions_.size(); ++i)
         {
             filtered_positions_[i] = 0.0;
             filtered_velocities_[i] = 0.0;
         }
-        
+
         RCLCPP_INFO(rclcpp::get_logger("mecanum_wheel_chassis"), "硬件接口激活");
         return hardware_interface::CallbackReturn::SUCCESS;
     }
@@ -220,11 +222,11 @@ namespace mecanum_wheel_chassis_hw
         const rclcpp_lifecycle::State &previous_state)
     {
         (void)previous_state;
-        
+
         // 停止所有电机
         std::array<int16_t, 4> stop_command = {0, 0, 0, 0};
         motor_driver_->writeSpeed(stop_command);
-        
+
         RCLCPP_INFO(rclcpp::get_logger("mecanum_wheel_chassis"), "硬件接口停用，电机已停止");
         return hardware_interface::CallbackReturn::SUCCESS;
     }
@@ -233,47 +235,94 @@ namespace mecanum_wheel_chassis_hw
         const rclcpp::Time &time, const rclcpp::Duration &period)
     {
         (void)time;
-        // // 读取编码器原始值
+        double dt = period.seconds();
+        if (dt <= 0)
+        {
+            dt = 0.001; // 防止除零
+        }
+
+        // 读取编码器原始值
         auto encoders = motor_driver_->readEncoder();
-        
+
+        // 计算编码器一圈对应的角度
+        double encoder_resolution = 2.0 * M_PI / (encoder_ppr_ * gear_ratio_);
+
         for (size_t i = 0; i < hw_positions_.size(); ++i)
         {
-            
-            // 计算原始角度
-            double raw_wheel_angle = (encoders[i] / encoder_ppr_) * 2.0 * M_PI / gear_ratio_;
-            
             if (filter_enable_)
             {
+                // 处理编码器溢出
+                int32_t encoder_diff = encoders[i] - last_encoder_counts_[i];
+
+                // 处理编码器溢出（假设是16位有符号编码器）
+                if (encoder_diff > 32767)
+                {
+                    encoder_diff -= 65536;
+                }
+                else if (encoder_diff < -32768)
+                {
+                    encoder_diff += 65536;
+                }
+
+                // 计算角度变化
+                double delta_angle = encoder_diff * encoder_resolution;
+
+                // 更新未滤波的位置
+                double raw_position = hw_positions_[i] + delta_angle;
+
                 // 位置滤波
-                filtered_positions_[i] = filter_pos_alpha_ * raw_wheel_angle + (1.0 - filter_pos_alpha_) * filtered_positions_[i];
-                
-                // 计算原始速度
-                double raw_velocity = (filtered_positions_[i] - hw_positions_[i]) / period.seconds();
-                
+                filtered_positions_[i] = filter_pos_alpha_ * raw_position +
+                                         (1.0 - filter_pos_alpha_) * filtered_positions_[i];
+
+                // 计算速度
+                double raw_velocity = delta_angle / dt;
+
                 // 速度滤波
-                filtered_velocities_[i] = filter_vel_alpha_ * raw_velocity + (1.0 - filter_vel_alpha_) * filtered_velocities_[i];
-                
+                filtered_velocities_[i] = filter_vel_alpha_ * raw_velocity +
+                                          (1.0 - filter_vel_alpha_) * filtered_velocities_[i];
+
                 // 更新硬件接口值
                 hw_positions_[i] = filtered_positions_[i];
                 hw_velocities_[i] = filtered_velocities_[i];
             }
             else
             {
-                // 无滤波
-                hw_velocities_[i] = (raw_wheel_angle - hw_positions_[i]) / period.seconds();
-                hw_positions_[i] = raw_wheel_angle;
+                // 无滤波模式
+                int32_t encoder_diff = encoders[i] - last_encoder_counts_[i];
+
+                // 处理编码器溢出
+                if (encoder_diff > 32767)
+                {
+                    encoder_diff -= 65536;
+                }
+                else if (encoder_diff < -32768)
+                {
+                    encoder_diff += 65536;
+                }
+
+                // 计算角度变化
+                double delta_angle = encoder_diff * encoder_resolution;
+
+                // 更新位置
+                hw_positions_[i] += delta_angle;
+
+                // 计算速度
+                hw_velocities_[i] = delta_angle / dt;
             }
+
+            // 保存当前编码器值用于下一次计算
+            last_encoder_counts_[i] = encoders[i];
         }
 
-        // 调试输出
+        // // 调试输出
         // RCLCPP_INFO(rclcpp::get_logger("mecanum_wheel_chassis"),
-        //     "vels=[%.3f,%.3f,%.3f,%.3f] rad/s", 
-        //     hw_velocities_[0],
-        //     hw_velocities_[1],
-        //     hw_velocities_[2],
-        //     hw_velocities_[3]
-        // );
-        
+        //             "vels=[%.3f,%.3f,%.3f,%.3f] rad/s",
+        //             hw_velocities_[0], hw_velocities_[1], hw_velocities_[2], hw_velocities_[3]);
+
+        // RCLCPP_INFO(rclcpp::get_logger("mecanum_wheel_chassis"),
+        //             "encode=[%d,%d,%d,%d]",
+        //             encoders[0], encoders[1], encoders[2], encoders[3]);
+
         return hardware_interface::return_type::OK;
     }
 
@@ -283,12 +332,12 @@ namespace mecanum_wheel_chassis_hw
         (void)time;
         (void)period;
         std::array<int16_t, 4> pwm_commands = {0};
-        
+
         for (size_t i = 0; i < hw_commands_.size(); ++i)
         {
             pwm_commands[i] = static_cast<int16_t>(hw_commands_[i]);
         }
-        
+
         motor_driver_->writeSpeed(pwm_commands);
 
         return hardware_interface::return_type::OK;
