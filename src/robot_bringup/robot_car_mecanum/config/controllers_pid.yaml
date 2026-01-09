@@ -44,11 +44,19 @@ fl_speed_pid:
         p: 21.0, 
         i: 22.0, 
         d: 4.0, 
+        # p: 10.0, 
+        # i: 0.0, 
+        # d: 0.0, 
+
+        # antiwindup_strategy: 'back_calculation',  # 或 'conditional_integration'
+        # tracking_time_constant: 0.5,  # 反算时间常数
+        # error_deadband: 0.05,  # 误差死区，±0.05内不积分
+
         i_clamp_min: -120.0, 
         i_clamp_max: 120.0,  
-        u_clamp_min: -255.0,
-        u_clamp_max: 255.0,
-        antiwindup: false, 
+        u_clamp_min: -200.0,
+        u_clamp_max: 200.0,
+        # antiwindup: true, 
         feedforward_gain: 0.95
       }
 
@@ -67,11 +75,19 @@ fr_speed_pid:
         p: 21.0, 
         i: 22.0, 
         d: 4.0, 
+        # p: 10.0, 
+        # i: 0.0, 
+        # d: 0.0, 
+
+        # antiwindup_strategy: 'back_calculation',  # 或 'conditional_integration'
+        # tracking_time_constant: 0.5,  # 反算时间常数
+        # error_deadband: 0.05,  # 误差死区，±0.05内不积分
+
         i_clamp_min: -120.0, 
         i_clamp_max: 120.0, 
-        u_clamp_min: -255.0,
-        u_clamp_max: 255.0,
-        antiwindup: false, 
+        u_clamp_min: -200.0,
+        u_clamp_max: 200.0,
+        # antiwindup: true, 
         feedforward_gain: 0.95
       }
 
@@ -91,11 +107,19 @@ rl_speed_pid:
         p: 21.0, 
         i: 22.0, 
         d: 4.0, 
+        # p: 10.0, 
+        # i: 0.0, 
+        # d: 0.0, 
+
+        # antiwindup_strategy: 'back_calculation',  # 或 'conditional_integration'
+        # tracking_time_constant: 0.5,  # 反算时间常数
+        # error_deadband: 0.05,  # 误差死区，±0.05内不积分
+
         i_clamp_min: -120.0, 
         i_clamp_max: 120.0, 
-        u_clamp_min: -255.0,
-        u_clamp_max: 255.0,
-        antiwindup: false, 
+        u_clamp_min: -200.0,
+        u_clamp_max: 200.0,
+        # antiwindup: true, 
         feedforward_gain: 0.95
       }
 
@@ -114,11 +138,19 @@ rr_speed_pid:
         p: 21.0, 
         i: 22.0, 
         d: 4.0, 
+        # p: 10.0, 
+        # i: 0.0, 
+        # d: 0.0, 
+
+        # antiwindup_strategy: 'back_calculation',  # 或 'conditional_integration'
+        # tracking_time_constant: 0.5,  # 反算时间常数
+        # error_deadband: 0.05,  # 误差死区，±0.05内不积分
+
         i_clamp_min: -120.0, 
         i_clamp_max: 120.0, 
-        u_clamp_min: -255.0,
-        u_clamp_max: 255.0,
-        antiwindup: false, 
+        u_clamp_min: -200.0,
+        u_clamp_max: 200.0,
+        # antiwindup: true, 
         feedforward_gain: 0.95
       }
 
@@ -139,7 +171,8 @@ mecanum_drive_controller:
       base_frame_offset: { x: 0.0, y: 0.0, theta: 0.0 }
       wheels_radius: 0.03
       # sum_of_robot_center_projection_on_X_Y_axis: 1.30  # 
-      sum_of_robot_center_projection_on_X_Y_axis: 0.32  # 0.2845
+      # sum_of_robot_center_projection_on_X_Y_axis: 0.32  # 0.2845
+      sum_of_robot_center_projection_on_X_Y_axis: 0.4  # 
 
     base_frame_id: "base_footprint"
     odom_frame_id: "odom"

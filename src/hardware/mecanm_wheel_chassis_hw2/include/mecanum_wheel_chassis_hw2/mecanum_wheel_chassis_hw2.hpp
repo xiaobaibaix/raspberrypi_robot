@@ -12,15 +12,17 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 #include <boost/circular_buffer.hpp>
-#include "mecanum_motor_driver.hpp"
 
-namespace mecanum_wheel_chassis_hw
+#include "robot_msgs/msg/motors_state.hpp"
+#include "robot_msgs/srv/get_pwm_servo_state.hpp"
+
+namespace mecanum_wheel_chassis_hw2
 {
-    class MecanumWheelChassisHW : public hardware_interface::SystemInterface
+    class MecanumWheelChassisHW2 : public hardware_interface::SystemInterface
     {
     public:
-        RCLCPP_SHARED_PTR_DEFINITIONS(MecanumWheelChassisHW)
-        MecanumWheelChassisHW() = default;
+        RCLCPP_SHARED_PTR_DEFINITIONS(MecanumWheelChassisHW2)
+        MecanumWheelChassisHW2() = default;
         hardware_interface::CallbackReturn on_init(
             const hardware_interface::HardwareComponentInterfaceParams &params) override;
 
@@ -39,12 +41,6 @@ namespace mecanum_wheel_chassis_hw
 
         hardware_interface::return_type write(
             const rclcpp::Time &time, const rclcpp::Duration &period) override;
-
-        struct MotorPosition
-        {
-            int id{};
-            int encode{};
-        };
 
     private:
         std::vector<double> hw_positions_;
@@ -71,9 +67,10 @@ namespace mecanum_wheel_chassis_hw
         std::vector<int32_t> last_encoder_counts_;
 
         std::vector<std::string> command_interface_types_;
-
-        std::unique_ptr<MecanumMotorDriver> motor_driver_;
-
         
+        rclcpp::Node::SharedPtr node_;
+
+        rclcpp::Publisher<robot_msgs::msg::MotorsState>::SharedPtr wheel_speed_pub_;  // 轮速命令发布者
+        rclcpp::Client<robot_msgs::srv::GetPWMServoState>::SharedPtr wheel_encoders_client_; // 编码器读取客户端
     };
 }

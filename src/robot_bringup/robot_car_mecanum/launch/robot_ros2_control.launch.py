@@ -15,6 +15,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.actions import GroupAction
 from launch.conditions import UnlessCondition
+from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     ld = LaunchDescription()
@@ -34,16 +35,25 @@ def generate_launch_description():
         description='open position_tracking_controller')
     )
 
+    ld.add_action(DeclareLaunchArgument(
+        'robot_desc',
+        default_value='robot_car.xacro',
+        description='the robot desc!')
+    )
+
     # 加载机器人描述文件
     robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         parameters=[{
-            'robot_description': ParameterValue(
-                Command(['xacro ', os.path.join(pkg, 'urdf', 'robot_car.xacro')]),
-                value_type=str
-            ),
-            # 添加 use_sim_time 参数以避免警告
+            'robot_description': Command([
+                'xacro ',
+                PathJoinSubstitution([
+                    FindPackageShare('robot_car_mecanum'),  # 您的包名
+                    'urdf',
+                    LaunchConfiguration('robot_desc')
+                ])
+            ]),
             'use_sim_time': False,
         }],
         output='both'

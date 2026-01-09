@@ -24,7 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'mecan = navigation.twist_stamper:main',
+            'chassis = chassis_driver.chassis_node:main',
         ],
     },
 )

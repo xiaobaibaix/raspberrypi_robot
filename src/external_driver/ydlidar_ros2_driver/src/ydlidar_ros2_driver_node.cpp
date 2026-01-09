@@ -58,10 +58,10 @@ int main(int argc, char *argv[]) {
   node->declare_parameter<bool>("intensity", false, desc, true);
   node->declare_parameter<bool>("support_motor_dtr", false, desc, true);
   node->declare_parameter<bool>("invalid_range_is_inf", false, desc, true);
-  node->declare_parameter<double>("angle_max", 180.0, desc, true);
-  node->declare_parameter<double>("angle_min", -180.0, desc, true);
+  node->declare_parameter<double>("angle_max", 132.0, desc, true);
+  node->declare_parameter<double>("angle_min", -132.0, desc, true);
   node->declare_parameter<double>("range_max", 64.0, desc, true);
-  node->declare_parameter<double>("range_min", 0.1, desc, true);
+  node->declare_parameter<double>("range_min", 0.01, desc, true);
   node->declare_parameter<double>("frequency", 10.0, desc, true);
 
   CYdLidar laser;
@@ -146,7 +146,7 @@ int main(int argc, char *argv[]) {
   f_optvalue = 64.f;
   node->get_parameter("range_max", f_optvalue);
   laser.setlidaropt(LidarPropMaxRange, &f_optvalue, sizeof(float));
-  f_optvalue = 0.1f;
+  f_optvalue = 1.0f;
   node->get_parameter("range_min", f_optvalue);
   laser.setlidaropt(LidarPropMinRange, &f_optvalue, sizeof(float));
   /// unit: Hz

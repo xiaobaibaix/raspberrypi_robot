@@ -614,7 +614,7 @@ def motor_test(board,stop):
     if stop:
         board.set_motor_speed([[1, 0], [2, 0], [3, 0], [4, 0]])
     else:
-        board.set_motor_speed([[1, -30], [2, -30], [3, 30], [4, -30]])
+        board.set_motor_speed([[1, -80], [2, -80], [3, 80], [4, -80]])
     time.sleep(time_delay/2)
     datas=board.pwm_servo_read_position([1, 2, 3, 4])
     for id, position in datas:

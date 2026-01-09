@@ -21,6 +21,8 @@ def generate_launch_description():
 
     ld = LaunchDescription()
 
+    #去掉了drvier的节点
+
     ld.add_action(
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([

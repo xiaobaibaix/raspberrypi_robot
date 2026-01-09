@@ -114,7 +114,7 @@ void MecanumMotorDriver::writeSpeed(const std::array<int16_t, 4> &pwm)
 std::array<int32_t, 4> MecanumMotorDriver::readEncoder()
 {
     auto frame = buildReadFrame();
-    t=steady_clock::now();
+    // t=steady_clock::now();
     try
     {
         port_->send(frame);
@@ -131,10 +131,11 @@ std::array<int32_t, 4> MecanumMotorDriver::readEncoder()
         std::cerr << "Send error: " << e.what() << std::endl;
     }
 
-    std::array<int32_t, 4> enc{};
-    if (!waitForEncoder(enc, milliseconds(10)))
+    static std::array<int32_t, 4> enc{};
+    if (!waitForEncoder(enc, milliseconds(5)))
     {
         std::cerr << "readEncoder timeout" << std::endl;
+        return {INT32_MAX,INT32_MAX,INT32_MAX,INT32_MAX};
     }
     return enc;
 }
@@ -235,16 +236,16 @@ void MecanumMotorDriver::readThreadFunc()
         // }
         // std::cout << std::dec << std::endl;
 
-        auto dt=steady_clock::now()-t;
+        // auto dt=steady_clock::now()-t;
 
-        auto duration_us = std::chrono::duration_cast<std::chrono::microseconds>(dt).count();
+        // auto duration_us = std::chrono::duration_cast<std::chrono::microseconds>(dt).count();
         // std::cout << "readEncoder callback took " << duration_us << " us" << std::endl;
 
         static const int data_size = 4;
         for (int i = 0; i < count; i++)
         {
             int id = data.at(i * (data_size + 1) + 1);
-            int16_t encode_dat = (data.at(i * (data_size + 1) + 2)) |
+            int32_t encode_dat = (data.at(i * (data_size + 1) + 2)) |
                                  (data.at(i * (data_size + 1) + 3) << 8) |
                                  (data.at(i * (data_size + 1) + 4) << 16) |
                                  (data.at(i * (data_size + 1) + 5) << 24);

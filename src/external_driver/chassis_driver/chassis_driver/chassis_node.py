@@ -14,9 +14,9 @@ from rclpy.node import Node
 from std_srvs.srv import Trigger
 from sensor_msgs.msg import Imu, Joy
 from std_msgs.msg import UInt16, Bool
-from chassis_driver import Board, PacketReportKeyEvents
+from chassis_driver.chassis_sdk import Board
 from robot_msgs.srv import GetPWMServoState
-from robot_msgs.msg import MotorsState
+from robot_msgs.msg import MotorsState, PWMServoState
 
 class RosRobotController(Node):
     gravity = 9.80665
@@ -30,8 +30,8 @@ class RosRobotController(Node):
 
         self.running = True
 
-        self.create_subscription(MotorsState, '~/set_motor', self.set_motor_state, 10)
-        self.create_service(GetPWMServoState, '~/pwm_servo/get_state', self.get_pwm_servo_state)
+        self.create_subscription(MotorsState, '~/set_motor_speed', self.set_motor_state, 10)
+        self.create_service(GetPWMServoState, '~/get_motor_encodes', self.get_pwm_servo_state)
 
         # 初始化电机速度
         self.board.set_motor_speed([[1, 0], [2, 0], [3, 0], [4, 0]])
@@ -70,9 +70,7 @@ def main():
         node.board.set_motor_speed([[1, 0], [2, 0], [3, 0], [4, 0]])
         node.destroy_node()
         rclpy.shutdown()
-        print('shutdown')
     finally:
         print('shutdown finish')
-
 if __name__ == '__main__':
     main()

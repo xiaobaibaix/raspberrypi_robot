@@ -1,3 +1,3 @@
 uint16[] id
-uint16[] position
+int32[] position
 int16[] offset

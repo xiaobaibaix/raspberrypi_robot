@@ -44,7 +44,7 @@ def generate_launch_description():
                 ),
             ]),
             launch_arguments={
-                'robot_desc': 'robot_car.xacro',
+                'robot_desc': 'robot_car_voice.xacro',
             }.items()
         )
     )
